@@ -2,7 +2,7 @@ import axios from "axios";
 import {API_ADDRESS, ImageType, type UserType} from "@/common";
 
 export const axiosInstance = axios.create({
-    baseURL: API_ADDRESS + '/api/',
+    baseURL: API_ADDRESS + "/api/",
     timeout: 1000,
 
   });
@@ -32,7 +32,7 @@ export async function submitDoctorInfo(token:string,form:any) {
 export async function getAvatar(token:string) {
     return await axiosInstance.post("avatar",{
         token:token
-    },{responseType: 'blob'})
+    },{responseType: "blob"})
 }
 
 export async function uploadAvatar(token:string,image:number) {
@@ -46,14 +46,12 @@ export function saveUser(){
     
 }
 
-export async function login(userName:string,passWord:string){
-    return await axiosInstance.post("login",{
-        username:userName,
-        password:passWord
-    })
+export async function login(username: string, password: string): Promise<any> {
+    return await axiosInstance.post("login", {
+        username,
+        password
+    });
 }
-
-
 
 export async function register(userName:string,passWord:string,type:UserType){
     return await axiosInstance.post("register",{
@@ -106,7 +104,7 @@ export async function getImageData(token:string,id:number){
         token:token,
         id:id,
     },{
-        responseType:'blob'
+        responseType:"blob"
     })
 }
 

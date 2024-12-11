@@ -16,6 +16,6 @@ export enum ImageType{
     result = 1
 }
 
-export const API_ADDRESS:string = "http://localhost:8767";
+export const API_ADDRESS:string = "http://172.31.214.18:8767";
 
 export let useCookies = ():VueCookies => inject<VueCookies>("$cookies")!

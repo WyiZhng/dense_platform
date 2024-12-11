@@ -46,7 +46,7 @@ async function register(){
     </el-form-item>
   </el-form>
   <div class="grid md:grid-cols-2 w-full max-md:grid-rows-2 gap-2">
-    <el-button type="primary" @click="">注册</el-button>
+    <el-button type="primary" @click="register()">注册</el-button>
     <el-button @click="isLoginView = true  ">返回</el-button>
   </div>
 </template>
