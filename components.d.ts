@@ -8,6 +8,9 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AccountAccess: typeof import('./src/components/pages/AccountAccess/index.vue')['default']
+    BaseCard: typeof import('./src/components/common/BaseCard.vue')['default']
+    BaseForm: typeof import('./src/components/common/BaseForm.vue')['default']
+    BaseTable: typeof import('./src/components/common/BaseTable.vue')['default']
     CariesCheck: typeof import('./src/components/pages/CariesCheck/index.vue')['default']
     CariesHistory: typeof import('./src/components/pages/CariesHistory/index.vue')['default']
     Comments: typeof import('./src/components/parts/Comments.vue')['default']
@@ -15,6 +18,7 @@ declare module 'vue' {
     Doctor: typeof import('./src/components/parts/Doctor.vue')['default']
     ElAside: typeof import('element-plus/es')['ElAside']
     ElAvatar: typeof import('element-plus/es')['ElAvatar']
+    ElBadge: typeof import('element-plus/es')['ElBadge']
     ElBreadcrumb: typeof import('element-plus/es')['ElBreadcrumb']
     ElBreadcrumbItem: typeof import('element-plus/es')['ElBreadcrumbItem']
     ElButton: typeof import('element-plus/es')['ElButton']
@@ -52,6 +56,7 @@ declare module 'vue' {
     ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
     ElTag: typeof import('element-plus/es')['ElTag']
     ElText: typeof import('element-plus/es')['ElText']
+    ElTooltip: typeof import('element-plus/es')['ElTooltip']
     ElUpload: typeof import('element-plus/es')['ElUpload']
     Header: typeof import('./src/components/parts/Header.vue')['default']
     HistoryDetail: typeof import('./src/components/pages/CariesHistory/parts/HistoryDetail.vue')['default']

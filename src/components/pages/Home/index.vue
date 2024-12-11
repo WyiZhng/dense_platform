@@ -1,79 +1,174 @@
 <template>
-  <div class="flex flex-col h-full">
-    <!-- 数据统计卡片区域 -->
-    <div class="grid grid-cols-3 w-full gap-4 mb-4">
-      <DataCard :num="25" percent="25%" title="总用户数量" subtitle="活跃用户增长">
-        <User class="text-blue-500 text-xl"></User>
+  <div class="space-y-8">
+    <!-- 欢迎区域 -->
+    <div class="welcome-banner">
+      <div class="max-w-4xl mx-auto px-8 py-12">
+        <h1 class="text-3xl font-bold text-white mb-4">
+          欢迎使用龋齿检测平台
+        </h1>
+        <p class="text-blue-100 text-lg max-w-2xl">
+          专业的口腔健康智能诊断系统，让您的口腔健康有保障
+        </p>
+      </div>
+    </div>
+
+    <!-- 数据统计卡片 -->
+    <div class="grid grid-cols-3 gap-6 px-8">
+      <DataCard 
+        title="总用户数量" 
+        :num="25" 
+        percent="+25%" 
+        trend="up"
+        subtitle="较上月增长"
+      >
+        <template #icon>
+          <User class="text-blue-500 text-2xl" />
+        </template>
       </DataCard>
-      <DataCard :num="158" percent="15%" title="本月检测量" subtitle="检测数量增长">
-        <Edit class="text-green-500 text-xl"></Edit>
+
+      <DataCard 
+        title="本月检测量" 
+        :num="158" 
+        percent="+15%" 
+        trend="up"
+        subtitle="检测数量增长"
+      >
+        <template #icon>
+          <Edit class="text-green-500 text-2xl" />
+        </template>
       </DataCard>
-      <DataCard :num="92" percent="30%" title="诊断准确率" subtitle="较上月提升">
-        <i class="el-icon-data-analysis text-purple-500 text-xl"></i>
+
+      <DataCard 
+        title="诊断准确率" 
+        :num="92" 
+        unit="%" 
+        percent="+5%" 
+        trend="up"
+        subtitle="准确率提升"
+      >
+        <template #icon>
+          <el-icon class="text-purple-500 text-2xl">
+            <DataLine />
+          </el-icon>
+        </template>
       </DataCard>
     </div>
 
     <!-- 主要内容区域 -->
-    <div class="grid grid-rows-3 grid-cols-3 gap-4 flex-1">
-      <!-- 历史记录列表 -->
-      <el-card class="h-full col-start-1 col-span-2 row-start-1 row-span-3 overflow-hidden">
-        <template #header>
-          <div class="flex justify-between items-center">
-            <h3 class="font-bold text-lg">检测历史记录</h3>
-            <el-button type="primary" size="small">查看全部</el-button>
+    <div class="grid grid-cols-3 gap-6 px-8">
+      <!-- 左侧历史记录 -->
+      <div class="col-span-2 bg-white rounded-xl shadow-sm">
+        <div class="p-6 border-b">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <el-icon class="text-blue-500 text-xl"><Histogram /></el-icon>
+              <h2 class="text-lg font-medium">检测历史</h2>
+            </div>
+            <el-button 
+              type="primary" 
+              text 
+              class="text-blue-500"
+              @click="router.push('/user/history')"
+            >
+              查看全部
+              <el-icon class="ml-1"><ArrowRight /></el-icon>
+            </el-button>
           </div>
-        </template>
-        <HistoryList :filter-visible="false"></HistoryList>
-      </el-card>
+        </div>
+        <div class="p-4">
+          <HistoryList :filter-visible="false" />
+        </div>
+      </div>
 
-      <!-- 功能介绍卡片 -->
-      <VideoCard 
-        class="transform hover:scale-105 transition-transform duration-300"
-        title="智能检测 ⏱️"
-        content="只需上传您的牙齿照片，AI系统秒级完成分析，准确识别口腔健康问题。">
-        <video class="h-40 w-full object-cover rounded-lg" 
-               src="@/assets/data.mp4" 
-               autoplay muted loop></video>
-      </VideoCard>
-
-      <VideoCard 
-        class="transform hover:scale-105 transition-transform duration-300"
-        title="专业报告 📋"
-        content="生成全面的口腔健康报告，包含详细的问题分析和个性化建议。">
-        <video class="h-40 w-full object-cover rounded-lg" 
-               src="@/assets/信息2.mp4" 
-               autoplay muted loop></video>
-      </VideoCard>
-
-      <VideoCard 
-        class="transform hover:scale-105 transition-transform duration-300"
-        title="专家咨询 👨‍⚕️"
-        content="连接专业牙医资源，提供在线问诊服务，为您的口腔健康保驾护航。">
-        <video class="h-40 w-full object-cover rounded-lg" 
-               src="@/assets/分析.mp4" 
-               autoplay muted loop></video>
-      </VideoCard>
+      <!-- 右侧功能卡片 -->
+      <div class="space-y-6">
+        <div 
+          v-for="(feature, index) in features" 
+          :key="index"
+          class="feature-card"
+        >
+          <video 
+            class="w-full h-40 object-cover rounded-t-xl" 
+            :src="feature.video" 
+            autoplay 
+            muted 
+            loop
+          />
+          <div class="p-6">
+            <h3 class="text-lg font-medium mb-2">{{ feature.title }}</h3>
+            <p class="text-gray-600 text-sm leading-relaxed">
+              {{ feature.description }}
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import logo from '../../icon/logo.vue';
-import {Edit, User} from "@element-plus/icons-vue";
-import DataCard from "@/components/pages/Home/parts/DataCard.vue";
-import VideoCard from "@/components/pages/Home/parts/VideoCard.vue";
-import LiteLineChart from "@/components/pages/Home/parts/LiteLineChart.vue";
-import HistoryList from "@/components/pages/CariesHistory/parts/HistoryList.vue";
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { User, Edit, DataLine, Histogram, ArrowRight } from '@element-plus/icons-vue'
+import DataCard from './parts/DataCard.vue'
+import HistoryList from '@/components/pages/CariesHistory/parts/HistoryList.vue'
+
+const router = useRouter()
+
+const features = [
+  {
+    title: '智能检测 ⏱️',
+    description: '先进的AI技术，秒级完成口腔健康分析，让您快速了解自己的口腔状况。',
+    video: '@/assets/data.mp4'
+  },
+  {
+    title: '专业报告 📋',
+    description: '生成专业的检测报告，包含详细的问题分析和个性化建议。',
+    video: '@/assets/信息2.mp4'
+  },
+  {
+    title: '专家问诊 👨‍⚕️',
+    description: '连接专业医生资源，提供在线问诊服务，为您的口腔健康保驾护航。',
+    video: '@/assets/分析.mp4'
+  }
+]
 </script>
 
 <style scoped>
-.el-card {
-  transition: all 0.3s ease;
-  border: none;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+.welcome-banner {
+  @apply bg-gradient-to-r from-blue-500 to-blue-600 relative overflow-hidden;
 }
 
-.el-card:hover {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+.welcome-banner::before {
+  content: '';
+  @apply absolute inset-0 bg-white opacity-10 transform -skew-y-6 scale-150;
+}
+
+.feature-card {
+  @apply bg-white rounded-xl shadow-sm overflow-hidden
+         transition-transform duration-300 hover:-translate-y-1 hover:shadow-md;
+}
+
+/* 数据卡片动画 */
+.data-card-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.data-card-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+/* 历史记录表格样式 */
+:deep(.el-table) {
+  @apply rounded-lg overflow-hidden;
+}
+
+:deep(.el-table th) {
+  @apply bg-gray-50;
+}
+
+:deep(.el-table--striped .el-table__row--striped td) {
+  @apply bg-gray-50;
 }
 </style>

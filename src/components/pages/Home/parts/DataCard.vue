@@ -1,62 +1,102 @@
-﻿<script setup lang="ts">
+﻿<template>
+  <div class="bg-white rounded-xl shadow-sm p-6 transition-all duration-300 hover:shadow-md">
+    <div class="flex items-start justify-between">
+      <div class="space-y-4">
+        <div class="flex items-center space-x-3">
+          <div class="p-3 rounded-lg bg-gray-50">
+            <slot name="icon"></slot>
+          </div>
+          <div>
+            <h3 class="text-gray-500 font-medium">{{ title }}</h3>
+            <div class="flex items-baseline space-x-2">
+              <span class="text-2xl font-bold">{{ num }}</span>
+              <span v-if="unit" class="text-gray-500">{{ unit }}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex items-center space-x-2">
+          <span class="text-sm" :class="trend === 'up' ? 'text-green-500' : 'text-red-500'">
+            {{ percent }}
+          </span>
+          <span class="text-sm text-gray-500">{{ subtitle }}</span>
+        </div>
+      </div>
 
-import {User} from "@element-plus/icons-vue";
-import LiteLineChart from "@/components/pages/Home/parts/LiteLineChart.vue";
-import {ref} from "vue";
-type Prop = {
-    title:string, 
-    num:number,
-    percent:string,
+      <!-- 趋势图 -->
+      <div class="w-32">
+        <LiteLineChart :option="options" />
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+import LiteLineChart from './LiteLineChart.vue'
+
+interface Props {
+  title: string
+  num: number
+  percent: string
+  trend?: 'up' | 'down'
+  unit?: string
+  subtitle?: string
 }
-const data = [1,1,4,5,1,4,1]
-defineProps<Prop>();
+
+const props = withDefaults(defineProps<Props>(), {
+  trend: 'up',
+  unit: '',
+  subtitle: ''
+})
+
+const data = [1, 4, 2, 5, 3, 6, 4]
 const options = ref({
-  container: ".line-card",
-  xAxis: {
-    type: "category",
-    show: false,
-    data: data
-  },
   grid: {
-    top: "15px",
-    bottom: 0,
-    left: 0,
-    right: 0
+    top: 4,
+    right: 4,
+    bottom: 4,
+    left: 4
+  },
+  xAxis: {
+    type: 'category',
+    show: false,
+    data
   },
   yAxis: {
-    show: false,
-    type: "value"
+    type: 'value',
+    show: false
   },
   series: [
     {
-      data: data,
-      type: "line",
-      symbol: "none",
+      data,
+      type: 'line',
       smooth: true,
-      color: "#41b6ff",
+      showSymbol: false,
       lineStyle: {
-        shadowOffsetY: 3,
-        shadowBlur: 7,
-        shadowColor: "#41b6ff"
+        width: 2,
+        color: props.trend === 'up' ? '#10B981' : '#EF4444'
+      },
+      areaStyle: {
+        color: {
+          type: 'linear',
+          x: 0,
+          y: 0,
+          x2: 0,
+          y2: 1,
+          colorStops: [{
+            offset: 0,
+            color: props.trend === 'up' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)'
+          }, {
+            offset: 1,
+            color: 'rgba(255, 255, 255, 0)'
+          }]
+        }
       }
     }
   ]
-});
+})
 </script>
-
-<template>
-  <el-card>
-    <div class="flex items-center justify-start gap-10">
-      <el-icon  size="100px"><slot></slot></el-icon>
-      <div class="grid grid-rows-3 justify-center items-center">
-        <h2 class="text-2xl">{{ title  }}</h2>
-        <h2 class="text-2xl">{{ num }}</h2>
-        <h2 class="text-green-600">{{ percent }}</h2>
-      </div>
-      <LiteLineChart :option="options" ></LiteLineChart>
-    </div>
-  </el-card>
-</template>
 
 <style scoped>
   @import "@/style.css";

@@ -1,130 +1,202 @@
 <template>
-    <el-row>
-        <el-card>
+  <div class="space-y-6">
+    <!-- 个人头像 -->
+    <BaseCard>
+      <template #header>
+        <div class="flex items-center">
+          <el-icon class="mr-2 text-blue-500"><UserFilled /></el-icon>
+          <span class="text-lg font-medium">个人头像</span>
+        </div>
+      </template>
+      
+      <div class="flex items-center space-x-6">
+        <el-avatar 
+          :size="100" 
+          :src="avatarUrl" 
+          class="border-4 border-gray-100"
+        />
+        <div class="space-y-3">
+          <Upload 
+            @onSuccess="handleAvatarSuccess"
+            class="upload-avatar"
+          />
+          <div class="text-gray-500 text-sm">
+            支持 jpg、png、webp 格式，文件小于 4MB
+          </div>
+        </div>
+      </div>
+    </BaseCard>
 
-            <div style="display: flex;flex-basis: content;">
-                <el-text style="margin-right: 16px;" size="large">头像:</el-text>
-                <Upload @onSuccess="response => uploadAvatar($cookies.get('token'),response.image).then(x=>{
-                  if(x.data.code == '0'){
-                    ElMessage.success('上传成功');
-                  }
-                })"></Upload>
-            </div>
+    <!-- 基本信息 -->
+    <BaseCard>
+      <template #header>
+        <div class="flex items-center">
+          <el-icon class="mr-2 text-blue-500"><Document /></el-icon>
+          <span class="text-lg font-medium">基本信息</span>
+        </div>
+      </template>
 
-        </el-card>
-    </el-row>
-  <el-row v-if="store.usertype == UserType.Doctor">
-    <el-card>
-      <el-form label-width="auto" style="max-width: 600px">
-        <el-form-item label="所属医院:">
-          <el-input v-model="doctor_form.workplace" />
+      <BaseForm 
+        :model="store.detail" 
+        label-width="100px"
+        class="max-w-2xl"
+      >
+        <el-form-item label="用户ID" class="mb-6">
+          <el-input v-model="store.username" disabled />
         </el-form-item>
-        <el-form-item label="所属部门:">
-          <el-input v-model="doctor_form.position" />
+
+        <el-form-item label="姓名" class="mb-6">
+          <el-input v-model="store.detail.name" placeholder="请输入姓名" />
         </el-form-item>
-      </el-form>
-    </el-card>
-  </el-row>
-    <el-row>
-        <el-card>
-            <el-form :model="store.detail" label-width="auto" style="max-width: 600px">
-              <el-form-item label="用户ID:">
-                <el-text>{{ store.username }}</el-text>
-              </el-form-item>  
-              <el-form-item label="用户名:">
-                    <el-input v-model="store.detail.name" />
-                </el-form-item>
-                <el-form-item label="密码:">
-                    <el-button type="primary">重置密码</el-button>
-                </el-form-item>
-                <el-form-item label="性别">
-                    <el-radio-group v-model="store.detail.sex">
-                        <el-radio :value="UserSex.Male">男性</el-radio>
-                        <el-radio :value="UserSex.Female">女性</el-radio>
-                    </el-radio-group>
-                </el-form-item>
-                <el-form-item label="出生日期">
-                    <el-date-picker v-model="store.detail.birth" type="date" placeholder="选择你的出生日期" value-format="YYYY-MM-DD" format="YYYY-MM-DD" style="width: 100%" />
-                </el-form-item>
-                <el-form-item label="联系方式">
-                    <el-input v-model="store.detail.phone" />
-                </el-form-item>
-                <el-form-item label="电子邮箱">
-                    <el-input v-model="store.detail.email" />
-                </el-form-item>
-                <el-form-item label="居住地址">
-                    <el-input v-model="store.detail.address" />
-                </el-form-item>
-                <el-form-item>
-                <el-button type="primary" @click="onSubmit">保存信息</el-button>
-    </el-form-item>
-            </el-form>
-        </el-card>
-    </el-row>
-    
+
+        <el-form-item label="性别" class="mb-6">
+          <el-radio-group v-model="store.detail.sex">
+            <el-radio :label="0">女</el-radio>
+            <el-radio :label="1">男</el-radio>
+          </el-radio-group>
+        </el-form-item>
+
+        <el-form-item label="出生日期" class="mb-6">
+          <el-date-picker
+            v-model="store.detail.birth"
+            type="date"
+            placeholder="选择日期"
+            format="YYYY-MM-DD"
+            class="w-full"
+          />
+        </el-form-item>
+
+        <el-form-item label="联系电话" class="mb-6">
+          <el-input 
+            v-model="store.detail.phone"
+            placeholder="请输入联系电话"
+            maxlength="11"
+          />
+        </el-form-item>
+
+        <el-form-item label="邮箱" class="mb-6">
+          <el-input 
+            v-model="store.detail.email"
+            placeholder="请输入邮箱地址"
+            type="email"
+          />
+        </el-form-item>
+
+        <el-form-item label="居住地址" class="mb-6">
+          <el-input 
+            v-model="store.detail.address"
+            placeholder="请输入居住地址"
+            type="textarea"
+            :rows="2"
+          />
+        </el-form-item>
+      </BaseForm>
+
+      <div class="flex justify-end mt-6">
+        <el-button type="primary" @click="saveUserInfo">保存修改</el-button>
+      </div>
+    </BaseCard>
+
+    <!-- 医生专属信息 -->
+    <BaseCard v-if="store.usertype === UserType.Doctor">
+      <template #header>
+        <div class="flex items-center">
+          <el-icon class="mr-2 text-blue-500"><Stethoscope /></el-icon>
+          <span class="text-lg font-medium">执业信息</span>
+        </div>
+      </template>
+
+      <BaseForm 
+        :model="doctorForm" 
+        label-width="100px"
+        class="max-w-2xl"
+      >
+        <el-form-item label="所属医院" class="mb-6">
+          <el-input v-model="doctorForm.workplace" placeholder="请输入医院名称" />
+        </el-form-item>
+
+        <el-form-item label="所属科室" class="mb-6">
+          <el-input v-model="doctorForm.position" placeholder="请输入科室名称" />
+        </el-form-item>
+      </BaseForm>
+
+      <div class="flex justify-end mt-6">
+        <el-button type="primary" @click="saveDoctorInfo">保存修改</el-button>
+      </div>
+    </BaseCard>
+  </div>
 </template>
 
 <script setup lang="ts">
-import {inject, ref} from "vue";
-import Upload from "./parts/Upload.vue"
-import {type VueCookies} from "vue-cookies";
-import {axiosInstance, submitDoctorInfo, submitUserInfo, uploadAvatar} from "@/api";
-import {UserSex, UserType} from "@/common";
-import {ElMessage} from "element-plus";
-import {useCommonStore} from "@/store";
+import { ref } from 'vue'
+import { ElMessage } from 'element-plus'
+import { UserFilled, Document,Document as Stethoscope } from '@element-plus/icons-vue'
+import { useCommonStore } from '@/store'
+import { UserType } from '@/common'
+import { submitUserInfo, submitDoctorInfo, uploadAvatar } from '@/api'
+import Upload from './parts/Upload.vue'
+import BaseCard from '@/components/common/BaseCard.vue'
+import BaseForm from '@/components/common/BaseForm.vue'
+import { useCookies } from '@/common'
 
 const store = useCommonStore()
-const imageUrl = ref();
-const $cookies = inject<VueCookies>("$cookies")
-const doctor_form = ref({
-  workplace:"",
-  position:""
-});
+const $cookies = useCookies()
+const avatarUrl = ref('')
 
-if(store.usertype == UserType.Doctor){
-  axiosInstance.post("doctor/info",{
-    token:$cookies?.get("token"),
-  }).then((x)=>{
-    doctor_form.value = x.data.form;
-  })
-}
+const doctorForm = ref({
+  workplace: '',
+  position: ''
+})
 
-
-function onSubmit(){
-    submitUserInfo($cookies?.get("token"),store.detail).then(x=>{
-        if(x.data.code == '0'){
-          ElMessage.success("信息保存成功")
-          return;
-        }else{
-          ElMessage.error(x.data.message)
-        }
-    }).catch((reason)=>{
-      ElMessage.error(reason);
-    })
-  if(store.usertype == UserType.Doctor){
-    submitDoctorInfo($cookies?.get("token"),doctor_form.value).then(x=>{
-      if(x.data.code == '0'){
-        doctor_form.value = x.data.form;
-        return;
-      }else{
-        ElMessage.error(x.data.message)
-      }
-    }).catch((reason)=>{
-      ElMessage.error(reason);
-    })
+// 头像上传成功处理
+const handleAvatarSuccess = async (response: any) => {
+  try {
+    const result = await uploadAvatar($cookies.get('token'), response.image)
+    if (result.data.code === '0') {
+      ElMessage.success('头像上传成功')
+      avatarUrl.value = URL.createObjectURL(response.raw)
+    }
+  } catch (error) {
+    ElMessage.error('头像上传失败')
   }
 }
 
+// 保存用户基本信息
+const saveUserInfo = async () => {
+  try {
+    const result = await submitUserInfo($cookies.get('token'), store.detail)
+    if (result.data.code === '0') {
+      ElMessage.success('保存成功')
+    } else {
+      ElMessage.error('保存失败')
+    }
+  } catch (error) {
+    ElMessage.error('保存失败')
+  }
+}
 
-
+// 保存医生信息
+const saveDoctorInfo = async () => {
+  try {
+    const result = await submitDoctorInfo($cookies.get('token'), doctorForm.value)
+    if (result.data.code === '0') {
+      ElMessage.success('保存成功')
+    } else {
+      ElMessage.error('保存失败')
+    }
+  } catch (error) {
+    ElMessage.error('保存失败')
+  }
+}
 </script>
 
-
 <style scoped>
-.el-card {
-    width: 100%;
-    border-radius: 8px;
-    margin-bottom: 8px;
-
+.upload-avatar :deep(.avatar-uploader) {
+  @apply border-2 border-dashed border-gray-300 rounded-lg 
+         hover:border-blue-500 transition-colors cursor-pointer;
 }
+
+.upload-avatar :deep(.avatar-uploader-icon) {
+  @apply text-gray-400 text-xl;
+} 
 </style>

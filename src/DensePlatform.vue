@@ -1,57 +1,55 @@
 <template>
-  <div class="common-layout">
-    <el-container>
-      <el-header style="height: auto">
+  <div class="h-screen bg-gray-50">
+    <el-container class="h-full">
+      <!-- 头部区域 -->
+      <el-header class="p-0 border-b bg-white">
         <Header :name="store.username" :login></Header>
       </el-header>
-      <el-container>
-        <el-aside width="250px">
-          <el-menu :router="true" ref="menu" @open="index => console.log(route.path)"   :default-active="route.path" class="el-menu-vertical-demo">
-            <el-menu-item index="/user/home">
-              <el-icon>
-                <House></House>
-              </el-icon>
+      
+      <el-container class="h-[calc(100vh-64px)]">
+        <!-- 侧边栏 -->
+        <el-aside width="250px" class="border-r bg-white">
+          <el-menu 
+            :router="true" 
+            ref="menu" 
+            :default-active="route.path" 
+            class="h-full border-0"
+          >
+            <el-menu-item index="/user/home" class="menu-item">
+              <el-icon><House /></el-icon>
               <span>主页</span>
             </el-menu-item>
-            <el-menu-item index="/user/personal">
-              <el-icon>
-                <User></User>
-              </el-icon>
+            
+            <el-menu-item index="/user/personal" class="menu-item">
+              <el-icon><User /></el-icon>
               <span>个人信息</span>
             </el-menu-item>
-            <el-sub-menu index="3">
+            
+            <el-sub-menu index="3" class="menu-sub">
               <template #title>
-                <el-icon>
-                  <Notification/>
-                </el-icon>
+                <el-icon><Notification /></el-icon>
                 <span>检测管理</span>
               </template>
               <el-menu-item index="/user/check">
-                <el-icon>
-                  <PieChart/>
-                </el-icon>
+                <el-icon><PieChart /></el-icon>
                 <span>龋齿检测</span>
               </el-menu-item>
               <el-menu-item index="/user/history">
-                <el-icon>
-                  <Clock/>
-                </el-icon>
+                <el-icon><Clock /></el-icon>
                 <span>历史记录</span>
               </el-menu-item>
             </el-sub-menu>
           </el-menu>
-
         </el-aside>
-        <el-container>
-          <el-main style="background-color: #EBEEF5;height: 100%">
-            <RouterView ></RouterView>
-          </el-main>
-        </el-container>
+
+        <!-- 主要内容区域 -->
+        <el-main class="p-6 bg-gray-50">
+          <RouterView></RouterView>
+        </el-main>
       </el-container>
     </el-container>
   </div>
 </template>
-
 
 <script setup lang="ts">
 import Header from './components/parts/Header.vue';
@@ -102,17 +100,31 @@ router.replace("/user/home");
 </script>
 
 <style scoped>
-
-.common-layout {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+.menu-item {
+  @apply hover:bg-gray-50;
 }
 
-.el-container {
-  height: 100%;
-  width: 100%;
+.menu-sub :deep(.el-sub-menu__title) {
+  @apply hover:bg-gray-50;
+}
+
+/* 自定义滚动条样式 */
+.el-main {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #CBD5E0 #EDF2F7;
+}
+
+.el-main::-webkit-scrollbar {
+  width: 6px;
+}
+
+.el-main::-webkit-scrollbar-track {
+  background: #EDF2F7;
+}
+
+.el-main::-webkit-scrollbar-thumb {
+  background-color: #CBD5E0;
+  border-radius: 3px;
 }
 </style>
