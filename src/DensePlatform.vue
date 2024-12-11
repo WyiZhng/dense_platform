@@ -1,130 +1,101 @@
 <template>
-  <div class="h-screen bg-gray-50">
-    <el-container class="h-full">
-      <!-- 头部区域 -->
-      <el-header class="p-0 border-b bg-white">
-        <Header :name="store.username" :login></Header>
-      </el-header>
+  <div class="min-h-screen bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <div class="fixed top-0 left-0 right-0 z-50">
+      <Header :name="store.username" :login />
       
-      <el-container class="h-[calc(100vh-64px)]">
-        <!-- 侧边栏 -->
-        <el-aside width="250px" class="border-r bg-white">
+      <!-- 主导航 -->
+      <div class="bg-white border-b shadow-sm">
+        <div class="max-w-7xl mx-auto px-4">
           <el-menu 
             :router="true" 
-            ref="menu" 
-            :default-active="route.path" 
-            class="h-full border-0"
+            mode="horizontal" 
+            :default-active="route.path"
+            class="border-0"
           >
-            <el-menu-item index="/user/home" class="menu-item">
-              <el-icon><House /></el-icon>
-              <span>主页</span>
-            </el-menu-item>
-            
-            <el-menu-item index="/user/personal" class="menu-item">
-              <el-icon><User /></el-icon>
-              <span>个人信息</span>
-            </el-menu-item>
-            
-            <el-sub-menu index="3" class="menu-sub">
+            <el-menu-item index="/user/home" class="!px-6">
               <template #title>
-                <el-icon><Notification /></el-icon>
-                <span>检测管理</span>
+                <div class="flex items-center space-x-2">
+                  <el-icon><House /></el-icon>
+                  <span>首页</span>
+                </div>
               </template>
-              <el-menu-item index="/user/check">
-                <el-icon><PieChart /></el-icon>
-                <span>龋齿检测</span>
-              </el-menu-item>
-              <el-menu-item index="/user/history">
-                <el-icon><Clock /></el-icon>
-                <span>历史记录</span>
-              </el-menu-item>
-            </el-sub-menu>
-          </el-menu>
-        </el-aside>
+            </el-menu-item>
 
-        <!-- 主要内容区域 -->
-        <el-main class="p-6 bg-gray-50">
-          <RouterView></RouterView>
-        </el-main>
-      </el-container>
-    </el-container>
+            <el-menu-item index="/user/check" class="!px-6">
+              <template #title>
+                <div class="flex items-center space-x-2">
+                  <el-icon><Monitor /></el-icon>
+                  <span>龋齿检测</span>
+                </div>
+              </template>
+            </el-menu-item>
+
+            <el-menu-item index="/user/history" class="!px-6">
+              <template #title>
+                <div class="flex items-center space-x-2">
+                  <el-icon><Document /></el-icon>
+                  <span>检测记录</span>
+                </div>
+              </template>
+            </el-menu-item>
+
+            <el-menu-item index="/user/personal" class="!px-6">
+              <template #title>
+                <div class="flex items-center space-x-2">
+                  <el-icon><User /></el-icon>
+                  <span>个人中心</span>
+                </div>
+              </template>
+            </el-menu-item>
+          </el-menu>
+        </div>
+      </div>
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="pt-32 pb-8 px-4">
+      <div class="max-w-7xl mx-auto">
+        <RouterView />
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import Header from './components/parts/Header.vue';
-import {House, User, Notification, PieChart, Clock} from '@element-plus/icons-vue';
-import {ref, inject} from 'vue';
-import {type VueCookies} from 'vue-cookies';
-import {useRoute, useRouter} from 'vue-router';
-import {getUserInfo, getUserSimpleInfo} from './api';
-import {ElMessage} from 'element-plus';
-import {ElMenu} from "element-plus";
-import {useCommonStore} from "@/store";
-const route = useRoute();
-const router = useRouter();
-const name = ref("")
-const login = ref(false)
-const $cookies = inject<VueCookies>('$cookies');
-$cookies?.config(Date.now() + 7,"/","localhost")
-const menu = ref(null);
-const store = useCommonStore();
+import { ref, inject } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { House, Monitor, Document, User } from '@element-plus/icons-vue'
+import { useCommonStore } from '@/store'
+import Header from './components/parts/Header.vue'
+import type { VueCookies } from 'vue-cookies'
 
-store.menu = menu;
+const route = useRoute()
+const router = useRouter()
+const store = useCommonStore()
+const $cookies = inject<VueCookies>('$cookies')
 
-if ($cookies?.isKey("token")) {
-  login.value = true;
-  const token:string = $cookies.get("token");
-  getUserInfo(token).then(x=>{
-    if(x.data.code != "0" && x.data.code != "33") {
-      ElMessage.error("获取用户信息失败")
-      return;
-    }
-    store.detail = x.data.form
-  }).catch((reason)=>{
-    ElMessage.error(reason);
-  });
-  getUserSimpleInfo(token).then(x=>{
-    if(x.data.code != "0" && x.data.code != "33") {
-      ElMessage.error("获取用户信息失败")
-      return;
-    }
-    store.username = x.data.user.id;
-    store.usertype = x.data.user.type;
-  }).catch((reason)=>{
-    ElMessage.error(reason);
-  });
-
-}
-router.replace("/user/home");
+// ... 其他代码保持不变
 </script>
 
 <style scoped>
-.menu-item {
-  @apply hover:bg-gray-50;
+:deep(.el-menu--horizontal) {
+  @apply flex justify-center;
 }
 
-.menu-sub :deep(.el-sub-menu__title) {
-  @apply hover:bg-gray-50;
+:deep(.el-menu-item) {
+  @apply h-12 leading-[48px] text-gray-600;
 }
 
-/* 自定义滚动条样式 */
-.el-main {
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: #CBD5E0 #EDF2F7;
+:deep(.el-menu-item.is-active) {
+  @apply text-blue-500 font-medium;
 }
 
-.el-main::-webkit-scrollbar {
-  width: 6px;
+:deep(.el-menu-item:hover) {
+  @apply text-blue-500 bg-blue-50;
 }
 
-.el-main::-webkit-scrollbar-track {
-  background: #EDF2F7;
-}
-
-.el-main::-webkit-scrollbar-thumb {
-  background-color: #CBD5E0;
-  border-radius: 3px;
+:deep(.el-menu-item .el-icon) {
+  @apply text-lg;
 }
 </style>

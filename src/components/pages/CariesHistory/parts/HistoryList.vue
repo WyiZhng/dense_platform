@@ -1,75 +1,149 @@
 <template>
-  <div>
-<!--    <div style="display: flex;align-items: center;margin-top: 16px">-->
-  <div class="flex items-center mt-4">
-      <div v-if="filterVisible" style="margin:8px 0;background: #f4f4f5;padding: 8px 8px;width: 100%">
-        <el-icon style="max-resolution: res;margin-right: 8px">
-          <Search></Search>
-        </el-icon>
-        <el-input style="width: 160px; margin-right: 16px" v-model="search" placeholder="搜索报告号或医生" clearable
-                  @clear="handleSearch"></el-input>
+  <div class="history-list">
+    <!-- 搜索和筛选区域 -->
+    <div v-if="filterVisible" class="filter-section">
+      <div class="flex items-center space-x-4">
+        <!-- 搜索框 -->
+        <div class="flex-1 max-w-md">
+          <el-input
+            v-model="search"
+            placeholder="搜索报告号或医生"
+            clearable
+            @clear="handleSearch"
+          >
+            <template #prefix>
+              <el-icon class="text-gray-400"><Search /></el-icon>
+            </template>
+          </el-input>
+        </div>
 
-        <el-divider direction="vertical"></el-divider>
+        <!-- 日期选择器 -->
         <el-date-picker
-            type="daterange"
-            v-model="dataRange"
-            range-separator="To"
-            start-placeholder="开始时间"
-            end-placeholder="结束时间"
-            :size="'medium'"
+          v-model="dataRange"
+          type="daterange"
+          range-separator="-"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          class="w-80"
         />
-        <el-divider direction="vertical"></el-divider>
-        <el-button type="primary" :icon="Refresh" @click="refresh()"></el-button>
+
+        <!-- 刷新按钮 -->
+        <el-button 
+          type="primary" 
+          :icon="Refresh" 
+          @click="refresh"
+          class="!flex items-center"
+        >
+          刷新
+        </el-button>
       </div>
     </div>
-    <el-table   :data="filteredReports" style="width: 100%">
-      <el-table-column prop="id" label="报告号" sortable/>
-      <el-table-column prop="doctor" label="负责医生" sortable/>
-      <el-table-column prop="submitTime" label="提交时间" sortable>
-      </el-table-column>
-      <el-table-column label="状态">
-        <template #default="scope">
-          <el-popover effect="light" trigger="hover" placement="top" width="auto">
-            <template #reference>
-              <el-tag :type="color(scope.row)">{{ argsComputed(scope.row.current_status) }}</el-tag>
-            </template>
-          </el-popover>
-        </template>
-      </el-table-column>
 
-      <el-table-column label="操作" align="center">
-        <template #default="scope">
-          <el-button size="small" @click="handleOpen(scope.$index, scope.row)">
-            查看报告
-          </el-button>
-          <el-button
-              size="small"
-              type="danger"
-              @click="handleDelete(scope.$index, scope.row)"
-          >
-            删除报告
-          </el-button>
-          <el-button v-if="store.usertype == UserType.Doctor"
-                     type="success"
-                     size="small">
-            操作报告
-          </el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+    <!-- 表格区域 -->
+    <div class="mt-4">
+      <el-table 
+        :data="filteredReports" 
+        class="custom-table"
+        :header-cell-style="{
+          background: '#F8FAFC',
+          color: '#334155',
+          fontWeight: '600'
+        }"
+      >
+        <el-table-column prop="id" label="报告号" min-width="120">
+          <template #default="{ row }">
+            <span class="font-medium text-gray-700">#{{ row.id }}</span>
+          </template>
+        </el-table-column>
 
-    <el-pagination
-        v-model:current-page="currentPage"
-        :page-size="pageSize"
-        :total="reports.length"
-        layout="total, prev, pager, next"
-        style="margin-top: 20px; text-align: center;">
-    </el-pagination>
+        <el-table-column prop="doctor" label="负责医生" min-width="150">
+          <template #default="{ row }">
+            <div class="flex items-center space-x-2">
+              <el-avatar :size="24" class="bg-blue-100 text-blue-600">
+                {{ row.doctor.charAt(0) }}
+              </el-avatar>
+              <span>{{ row.doctor }}</span>
+            </div>
+          </template>
+        </el-table-column>
+
+        <el-table-column prop="submitTime" label="提交时间" min-width="180">
+          <template #default="{ row }">
+            <div class="flex items-center space-x-2 text-gray-600">
+              <el-icon><Calendar /></el-icon>
+              <span>{{ formatDate(row.submitTime) }}</span>
+            </div>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="状态" width="120">
+          <template #default="{ row }">
+            <el-tag
+              :type="getStatusType(row.current_status)"
+              effect="light"
+              class="status-tag"
+            >
+              {{ getStatusText(row.current_status) }}
+            </el-tag>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="操作" width="250" fixed="right">
+          <template #default="{ row }">
+            <div class="flex items-center space-x-2">
+              <el-button
+                type="primary"
+                text
+                @click="handleOpen(row)"
+              >
+                <el-icon><View /></el-icon>
+                查看报告
+              </el-button>
+
+              <el-button
+                v-if="store.usertype === UserType.Doctor"
+                type="success"
+                text
+              >
+                <el-icon><Edit /></el-icon>
+                操作报告
+              </el-button>
+
+              <el-popconfirm
+                title="确定要删除这份报告吗？"
+                @confirm="handleDelete(row)"
+              >
+                <template #reference>
+                  <el-button
+                    type="danger"
+                    text
+                  >
+                    <el-icon><Delete /></el-icon>
+                    删除
+                  </el-button>
+                </template>
+              </el-popconfirm>
+            </div>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <!-- 分页器 -->
+      <div class="flex justify-end mt-4">
+        <el-pagination
+          v-model:current-page="currentPage"
+          v-model:page-size="pageSize"
+          :total="reports.length"
+          :page-sizes="[10, 20, 30, 50]"
+          layout="total, sizes, prev, pager, next"
+        />
+      </div>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import {Refresh, Search} from "@element-plus/icons-vue";
+import {Refresh, Search, Calendar, View, Edit, Delete} from "@element-plus/icons-vue";
 import {deleteReport, getReports} from "@/api";
 import {computed, inject, ref, watch} from "vue";
 import {type VueCookies} from "vue-cookies";
@@ -177,4 +251,76 @@ function refresh() {
     });
   }
 }
+
+// 格式化日期
+const formatDate = (date: string) => {
+  return new Date(date).toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
+// 获取状态类型
+const getStatusType = (status: Status) => {
+  const types = {
+    [Status.Checking]: 'info',
+    [Status.Completed]: 'success',
+    [Status.Abnormality]: 'warning',
+    [Status.Error]: 'danger'
+  }
+  return types[status]
+}
+
+// 获取状态文本
+const getStatusText = (status: Status) => {
+  const texts = {
+    [Status.Checking]: '检测中',
+    [Status.Completed]: '检测完成',
+    [Status.Abnormality]: '状态异常',
+    [Status.Error]: '检测错误'
+  }
+  return texts[status]
+}
 </script>
+
+<style scoped>
+.history-list {
+  @apply bg-white rounded-lg;
+}
+
+.filter-section {
+  @apply p-4 bg-gray-50 rounded-lg border border-gray-100;
+}
+
+.custom-table {
+  @apply border border-gray-100 rounded-lg overflow-hidden;
+}
+
+:deep(.el-table) {
+  --el-table-border-color: theme('colors.gray.100');
+  --el-table-header-bg-color: theme('colors.gray.50');
+}
+
+:deep(.el-table__row) {
+  @apply hover:bg-blue-50 transition-colors;
+}
+
+.status-tag {
+  @apply !flex items-center justify-center w-20;
+}
+
+:deep(.el-button) {
+  @apply !flex items-center;
+}
+
+:deep(.el-button .el-icon) {
+  @apply mr-1;
+}
+
+:deep(.el-pagination) {
+  @apply !flex items-center justify-end;
+}
+</style>

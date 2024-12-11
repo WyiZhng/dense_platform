@@ -1,36 +1,51 @@
 <template>
-    <div class="md:bg-indigo-50 w-full h-full" style="z-index: -1">
-      <img src="../../../assets/imgs/bg.png" class="fixed h-full w-full left-0 bottom-0 max-md:hidden" style="z-index: -1;" alt="">
-      <div class="grid md:grid-cols-2 h-full items-center gap-60 max-md:grid-cols-1 max-md:grid-rows-1">
-          <div class="flex justify-center items-center max-md:hidden" >
-            <img src="../../../assets/imgs/fg.png " class="h-[600px]" alt="">
-          </div>
-          <div class="w-[500px] max-md:w-full">
-            <el-card shadow="never" class="">
-                <template #header>
-                    <el-text size="large">请登录或者注册一个账号</el-text>
-                </template>
-              
-               <div class="flex flex-col justify-center items-center text-center p-5">
-                 <div class="flex items-center mb-10">
-                   <el-icon size="100px"><logo></logo></el-icon>
-                   <h1 class="text-2xl text-gray-600 ml-4">龋齿检测平台</h1>
-                 </div>
-                  <Login v-if="isLoginView"></Login>
-                  <Register v-else></Register>
-               </div>
-            </el-card>
-          </div>
+  <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-16 px-4">
+    <div class="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
+      <!-- 左侧图片区域 -->
+      <div class="hidden lg:flex flex-col items-center space-y-8">
+        <img 
+          src="@/assets/imgs/fg.png" 
+          alt="Welcome" 
+          class="max-h-[500px] object-contain"
+        />
+        <div class="text-center">
+          <h1 class="text-3xl font-bold text-gray-800 mb-4">
+            智能龋齿检测平台
+          </h1>
+          <p class="text-gray-600 max-w-md">
+            专业的口腔健康智能诊断系统，让您的口腔健康有保障
+          </p>
         </div>
+      </div>
+
+      <!-- 右侧表单区域 -->
+      <div class="w-full max-w-md mx-auto">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+          <!-- Logo -->
+          <div class="flex items-center justify-center mb-8">
+            <el-icon size="48" class="text-blue-500">
+              <logo />
+            </el-icon>
+            <h2 class="text-2xl font-bold text-gray-800 ml-4">
+              龋齿检测平台
+            </h2>
+          </div>
+
+          <!-- 登录/注册表单 -->
+          <Login v-if="isLoginView" />
+          <Register v-else />
+        </div>
+      </div>
     </div>
+  </div>
 </template>
+
 <script setup lang="ts">
-import Logo from "@/components/icon/logo.vue";
+import { provide, ref } from 'vue'
+import Logo from '@/components/icon/logo.vue'
+import Login from './parts/Login.vue'
+import Register from './parts/Register.vue'
 
-import Login from "@/components/pages/AccountAccess/parts/Login.vue";
-import {provide, ref} from "vue";
-import Register from "@/components/pages/AccountAccess/parts/Register.vue";
 const isLoginView = ref(true)
-provide("isLoginView",isLoginView)
-
+provide('isLoginView', isLoginView)
 </script>

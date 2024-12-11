@@ -1,69 +1,142 @@
-﻿<script setup lang="ts">
+﻿<template>
+  <div class="w-full max-w-md">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">欢迎回来</h2>
+    <p class="text-gray-500 mb-8">请登录您的账号以继续使用</p>
 
-import {Key, User} from "@element-plus/icons-vue";
-import {inject, ref, type Ref} from "vue";
-import IcBaselineWechat from "@/components/icon/IcBaselineWechat.vue";
-import MingcuteQqLine from "@/components/icon/MingcuteQqLine.vue";
-import {login as loginRequest } from "@/api"
-import {type LoginForm} from ".."
-import Sha256 from "crypto-js/sha256"
-import {useCookies} from "@/common";
-import router from "@/router";
-import {ElMessage, type FormInstance, type FormRules} from "element-plus";
+    <el-form 
+      ref="formRef"
+      :model="form"
+      :rules="rules"
+      class="space-y-6"
+    >
+      <el-form-item prop="username">
+        <el-input
+          v-model="form.username"
+          placeholder="请输入用户名"
+          :prefix-icon="User"
+          class="auth-input"
+        />
+      </el-form-item>
 
-const isLoginView = inject<Ref<boolean>>("isLoginView")!
-const loginModel = ref<LoginForm>({account:"",password:""});
-const loginForm = ref<FormInstance>();
-const rules = ref<FormRules<LoginForm>>({
-  account:[
-    {required:true,message:'请输入账号'}
-  ],
-  password:[
-      {required:true,message:"请输入密码"}
-  ]
-})
-const $cookies = useCookies();
+      <el-form-item prop="password">
+        <el-input
+          v-model="form.password"
+          type="password"
+          placeholder="请输入密码"
+          :prefix-icon="Lock"
+          class="auth-input"
+          show-password
+        />
+      </el-form-item>
 
+      <div class="flex items-center justify-between">
+        <el-checkbox v-model="rememberMe">记住我</el-checkbox>
+        <el-button 
+          type="text" 
+          class="text-blue-500 hover:text-blue-600"
+        >
+          忘记密码？
+        </el-button>
+      </div>
 
-async function login()
-{
-  await loginForm.value?.validate();
-  try {
-    let result = await loginRequest(loginModel.value.account, Sha256(loginModel.value.password).toString())
-    if(result.data.code == 31){
-        ElMessage.error("用户名或密码错误")
-        return;
-    }
-    $cookies.set("token", result.data.token, Date.now() + 7);
-    await router.push("/user/home");
-  }
-  catch (error){
-      if (error === undefined) 
-        ElMessage.error("发生了未知错误");
-      else 
-        ElMessage.error(error as any);
-    }
-}
+      <el-button
+        type="primary"
+        class="w-full h-12 text-base !mt-8"
+        :loading="loading"
+        @click="handleSubmit"
+      >
+        登录
+      </el-button>
 
-
-</script>
-
-<template>
-  <el-form ref="loginForm" class="w-full" :model="loginModel" :rules>
-    <el-form-item class="w-full" prop="account">
-      <el-input v-model="loginModel.account" placeholder="账号" size="large" :prefix-icon="User" ></el-input>
-    </el-form-item>
-    <el-form-item class="w-full" prop="password">
-      <el-input v-model="loginModel.password" placeholder="密码" size="large" :prefix-icon="Key"></el-input>
-    </el-form-item>
-  </el-form>
-  <div class="grid md:grid-cols-2 w-full max-md:grid-rows-2 gap-2">
-    <el-button  type="primary" @click="login" >登录</el-button>
-    <el-button @click="isLoginView = false">注册</el-button>
-  </div>
-  <el-divider ><el-text>使用其他方式登录</el-text></el-divider>
-  <div class="flex gap-4">
-    <el-link><ic-baseline-wechat class="w-7 "/></el-link>
-    <el-link><MingcuteQqLine class="w-7"/></el-link>
+      <div class="text-center text-gray-500">
+        还没有账号？
+        <el-button 
+          type="text" 
+          class="text-blue-500 hover:text-blue-600"
+          @click="isLoginView = false"
+        >
+          立即注册
+        </el-button>
+      </div>
+    </el-form>
   </div>
 </template>
+
+<script setup lang="ts">
+import { ref, inject, type Ref } from 'vue'
+import { ElMessage } from 'element-plus'
+import { User, Lock } from '@element-plus/icons-vue'
+import type { FormInstance } from 'element-plus'
+import type { VueCookies } from 'vue-cookies'
+import { login } from '@/api'
+import { useRouter } from 'vue-router'
+import { useCommonStore } from '@/store'
+
+const router = useRouter()
+const store = useCommonStore()
+const $cookies = inject<VueCookies>('$cookies')
+const isLoginView = inject('isLoginView') as Ref<boolean>
+const loading = ref(false)
+const rememberMe = ref(false)
+
+const formRef = ref<FormInstance>()
+const form = ref({
+  username: '',
+  password: ''
+})
+
+const rules = {
+  username: [
+    { required: true, message: '请输入用户名', trigger: 'blur' },
+    { min: 3, message: '用户名长度不能小于3位', trigger: 'blur' }
+  ],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    { min: 6, message: '密码长度不能小于6位', trigger: 'blur' }
+  ]
+}
+
+const handleSubmit = async () => {
+  if (!formRef.value) return
+  
+  try {
+    await formRef.value.validate()
+    loading.value = true
+    
+    const res = await login(form.value.username, form.value.password)
+    if (res.data.code === '0') {
+      ElMessage.success('登录成功')
+      $cookies?.set('token', res.data.token)
+      router.push('/user/home')
+    } else {
+      ElMessage.error(res.data.message || '登录失败')
+    }
+  } catch (error) {
+    console.error(error)
+  } finally {
+    loading.value = false
+  }
+}
+</script>
+
+<style scoped>
+.auth-input {
+  @apply h-12;
+}
+
+:deep(.el-input__wrapper) {
+  @apply rounded-lg bg-gray-50 border-none;
+}
+
+:deep(.el-input__inner) {
+  @apply h-12 text-base;
+}
+
+:deep(.el-input__prefix) {
+  @apply text-gray-400;
+}
+
+:deep(.el-checkbox__label) {
+  @apply text-gray-500;
+}
+</style>
