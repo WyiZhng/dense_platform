@@ -89,12 +89,12 @@
         </el-table-column>
 
         <el-table-column label="操作" width="250" fixed="right">
-          <template #default="{ row }">
+          <template #default="scope">
             <div class="flex items-center space-x-2">
               <el-button
                 type="primary"
                 text
-                @click="handleOpen(row)"
+                @click="handleOpen(scope.$index, scope.row)"
               >
                 <el-icon><View /></el-icon>
                 查看报告
@@ -111,7 +111,7 @@
 
               <el-popconfirm
                 title="确定要删除这份报告吗？"
-                @confirm="handleDelete(row)"
+                @confirm="handleDelete(scope.$index, scope.row)"
               >
                 <template #reference>
                   <el-button
