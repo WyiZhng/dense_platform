@@ -80,7 +80,7 @@ import { ElMessage } from 'element-plus'
 import { User, Lock } from '@element-plus/icons-vue'
 import type { FormInstance } from 'element-plus'
 import { register } from '@/api'
-
+import Sha256 from "crypto-js/sha256"
 const isLoginView = inject('isLoginView') as any
 const loading = ref(false)
 
@@ -126,7 +126,7 @@ const handleSubmit = async () => {
     await formRef.value.validate()
     loading.value = true
     
-    const res = await register(form.value.username, form.value.password, form.value.userType!)
+    const res = await register(form.value.username, Sha256(form.value.password).toString(), form.value.userType!)
     if (res.data.code === '0') {
       ElMessage.success('注册成功')
       isLoginView.value = true

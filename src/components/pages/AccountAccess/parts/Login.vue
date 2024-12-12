@@ -71,7 +71,7 @@ import type { VueCookies } from 'vue-cookies'
 import { login } from '@/api'
 import { useRouter } from 'vue-router'
 import { useCommonStore } from '@/store'
-
+import Sha256 from "crypto-js/sha256"
 const router = useRouter()
 const store = useCommonStore()
 const $cookies = inject<VueCookies>('$cookies')
@@ -103,11 +103,11 @@ const handleSubmit = async () => {
     await formRef.value.validate()
     loading.value = true
     
-    const res = await login(form.value.username, form.value.password)
+    const res = await login(form.value.username, Sha256(form.value.password).toString())
     if (res.data.code === '0') {
       ElMessage.success('登录成功')
       $cookies?.set('token', res.data.token)
-      router.push('/user/home')
+      await router.push('/user/home')
     } else {
       ElMessage.error(res.data.message || '登录失败')
     }
