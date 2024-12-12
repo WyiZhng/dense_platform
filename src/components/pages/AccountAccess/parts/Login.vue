@@ -104,7 +104,9 @@ const handleSubmit = async () => {
     loading.value = true
     
     const res = await login(form.value.username, Sha256(form.value.password).toString())
-    if (res.data.code === '0') {
+    console.log(res.data.code)
+    if (res.data.code === 0) {
+      
       ElMessage.success('登录成功')
       $cookies?.set('token', res.data.token)
       await router.push('/user/home')

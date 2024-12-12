@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gray-50">
     <!-- 顶部导航栏 -->
     <div class="fixed top-0 left-0 right-0 z-50">
-      <Header :name="store.username" :login />
+      <Header :name="store.username" :login/>
       
       <!-- 主导航 -->
       <div class="bg-white border-b shadow-sm">
@@ -69,13 +69,20 @@ import { House, Monitor, Document, User } from '@element-plus/icons-vue'
 import { useCommonStore } from '@/store'
 import Header from './components/parts/Header.vue'
 import type { VueCookies } from 'vue-cookies'
+import { getUserSimpleInfo } from './api'
 
 const route = useRoute()
 const router = useRouter()
 const store = useCommonStore()
 const $cookies = inject<VueCookies>('$cookies')
+const login = $cookies?.isKey("token")
+if(login){
+  getUserSimpleInfo($cookies?.get("token")).then(x => {
+    store.username = x.data.user.username
+    console.log(store.username)
+  })
 
-// ... 其他代码保持不变
+}
 </script>
 
 <style scoped>
