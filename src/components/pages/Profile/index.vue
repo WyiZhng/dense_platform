@@ -60,10 +60,11 @@
           <el-date-picker
             v-model="store.detail.birth"
             type="date"
-            placeholder="选择日期"
-            format="YYYY-MM-DD"
+            placeholder="选择日期" 
+            value-format="YYYY-MM-DD"
             class="w-full"
           />
+          <!-- 这里修复了日期格式化的问题,但是没有测试 -->
         </el-form-item>
 
         <el-form-item label="联系电话" class="mb-6">
@@ -133,7 +134,7 @@ import { ElMessage } from 'element-plus'
 import { UserFilled, Document,Document as Stethoscope } from '@element-plus/icons-vue'
 import { useCommonStore } from '@/store'
 import { UserType } from '@/common'
-import { submitUserInfo, submitDoctorInfo, uploadAvatar } from '@/api'
+import {submitUserInfo, submitDoctorInfo, uploadAvatar, getUserInfo} from '@/api'
 import Upload from './parts/Upload.vue'
 import BaseCard from '@/components/common/BaseCard.vue'
 import BaseForm from '@/components/common/BaseForm.vue'
@@ -148,11 +149,13 @@ const doctorForm = ref({
   position: ''
 })
 
+
+
 // 头像上传成功处理
 const handleAvatarSuccess = async (response: any) => {
   try {
     const result = await uploadAvatar($cookies.get('token'), response.image)
-    if (result.data.code === '0') {
+    if (result.data.code == 0) {
       ElMessage.success('头像上传成功')
       avatarUrl.value = URL.createObjectURL(response.raw)
     }
@@ -165,7 +168,7 @@ const handleAvatarSuccess = async (response: any) => {
 const saveUserInfo = async () => {
   try {
     const result = await submitUserInfo($cookies.get('token'), store.detail)
-    if (result.data.code === '0') {
+    if (result.data.code === 0) {
       ElMessage.success('保存成功')
     } else {
       ElMessage.error('保存失败')

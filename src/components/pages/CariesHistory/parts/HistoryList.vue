@@ -127,7 +127,7 @@
           </template>
         </el-table-column>
       </el-table>
-
+    
       <!-- 分页器 -->
       <div class="flex justify-end mt-4">
         <el-pagination
@@ -138,6 +138,7 @@
           layout="total, sizes, prev, pager, next"
         />
       </div>
+      
     </div>
   </div>
 </template>

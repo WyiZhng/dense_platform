@@ -127,7 +127,7 @@ const handleSubmit = async () => {
     loading.value = true
     
     const res = await register(form.value.username, Sha256(form.value.password).toString(), form.value.userType!)
-    if (res.data.code === '0') {
+    if (res.data.code === 0) {
       ElMessage.success('注册成功')
       isLoginView.value = true
     } else {

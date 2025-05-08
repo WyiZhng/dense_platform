@@ -37,13 +37,6 @@
         </div>
       </div>
     </div>
-
-    <!-- 主要内容区域 -->
-    <BaseCard>
-      <HistoryList :filter-visible="true" />
-    </BaseCard>
-
-    <!-- 图表区域 -->
     <div class="grid grid-cols-2 gap-6">
       <!-- 检测趋势图 -->
       <BaseCard>
@@ -78,6 +71,13 @@
         </div>
       </BaseCard>
     </div>
+    <!-- 主要内容区域 -->
+    <BaseCard>
+      <RouterView></RouterView>
+    </BaseCard>
+
+    <!-- 图表区域 -->
+
   </div>
 </template>
 

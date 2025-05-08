@@ -89,7 +89,7 @@
         >
           <video 
             class="w-full h-40 object-cover rounded-t-xl" 
-            :src="feature.video" 
+            :src="feature.video"
             autoplay 
             muted 
             loop
@@ -107,11 +107,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { User, Edit, DataLine, Histogram, ArrowRight } from '@element-plus/icons-vue'
 import DataCard from './parts/DataCard.vue'
 import HistoryList from '@/components/pages/CariesHistory/parts/HistoryList.vue'
+
 
 const router = useRouter()
 
@@ -119,19 +119,21 @@ const features = [
   {
     title: '智能检测 ⏱️',
     description: '先进的AI技术，秒级完成口腔健康分析，让您快速了解自己的口腔状况。',
-    video: '@/assets/data.mp4'
+    video: '/src/assets/data.mp4'
   },
   {
     title: '专业报告 📋',
     description: '生成专业的检测报告，包含详细的问题分析和个性化建议。',
-    video: '@/assets/信息2.mp4'
+    video: '/src/assets/信息2.mp4'
   },
   {
     title: '专家问诊 👨‍⚕️',
     description: '连接专业医生资源，提供在线问诊服务，为您的口腔健康保驾护航。',
-    video: '@/assets/分析.mp4'
+    video: '/src/assets/分析.mp4'
   }
 ]
+
+
 </script>
 
 <style scoped>

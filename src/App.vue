@@ -2,9 +2,13 @@
       import router from "@/router";
       import {useCookies} from "@/common";
       import {onMounted} from "vue";
+      import {useCommonStore} from "@/store";
+      import {updateUserInfo} from "../util";
       const cookies = useCookies();
+      const store = useCommonStore()
       onMounted(()=>{
         if(cookies.isKey("token")){
+          updateUserInfo(cookies,store)
           router.push("/user")
         }else{
           router.push("/login")

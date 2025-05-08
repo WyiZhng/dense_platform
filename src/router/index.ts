@@ -18,7 +18,12 @@ const router = createRouter({
         {
             path: "/user",
             component: DensePlatform,
+            
             children: [
+                {
+                    path:"",
+                    redirect:"/user/home"
+                },
                 {
 
                     path: "home",

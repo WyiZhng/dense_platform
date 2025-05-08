@@ -90,7 +90,7 @@ export async function getUserSimpleInfo(token:string){
     })
 }
 
-export async function getImagesOfReport(token:string,id:number,type:ImageType){
+export async function getImagesOfReport(token:string,id:string,type:ImageType){
     return await axiosInstance.post("report/images",{
         token:token,
         id:id,
@@ -99,7 +99,7 @@ export async function getImagesOfReport(token:string,id:number,type:ImageType){
     
 }
 
-export async function getImageData(token:string,id:number){
+export async function getImageData(token:string,id:string){
     return await axiosInstance.post("image/get",{
         token:token,
         id:id,

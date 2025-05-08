@@ -17,28 +17,7 @@
         <!-- 右侧功能区 -->
         <div class="flex items-center space-x-8">
           <!-- 功能按钮组 -->
-          <div class="flex items-center space-x-1">
-            <el-tooltip content="全屏显示" placement="bottom">
-              <el-button class="btn-icon" :icon="FullScreen" text>
-                <el-icon><FullScreen /></el-icon>
-              </el-button>
-            </el-tooltip>
-            
-            <el-tooltip content="切换主题" placement="bottom">
-              <el-button class="btn-icon" text>
-                <el-icon><Sunny /></el-icon>
-              </el-button>
-            </el-tooltip>
-            
-            <el-tooltip content="消息通知" placement="bottom">
-              <el-button class="btn-icon relative" text>
-                <el-icon><Bell /></el-icon>
-                <span v-if="unreadCount" class="notification-badge">
-                  {{ unreadCount }}
-                </span>
-              </el-button>
-            </el-tooltip>
-          </div>
+
 
           <!-- 分割线 -->
           <div class="h-8 w-px bg-gray-200"></div>
@@ -83,15 +62,14 @@
 </template>
 
 <script setup lang="ts">
-import { ArrowDown, Bell, FullScreen, Sunny, CaretBottom, User, SwitchButton } from '@element-plus/icons-vue';
-import { inject, ref } from 'vue';
+import {CaretBottom, SwitchButton, User} from '@element-plus/icons-vue';
+import {inject, ref} from 'vue';
 import logo from '../icon/logo.vue';
-import Login from '../pages/AccountAccess/index.vue';
-import type { VueCookies } from 'vue-cookies';
-import { getAvatar } from '@/api';
-import { useCommonStore } from "@/store";
-import { UserType } from "@/common";
-import { useRoute, useRouter } from 'vue-router'
+import type {VueCookies} from 'vue-cookies';
+import {getAvatar} from '@/api';
+import {useCommonStore} from "@/store";
+import {UserType} from "@/common";
+import {useRoute, useRouter} from 'vue-router'
 
 const $cookies = inject<VueCookies>('$cookies');
 const showDialogVariable = ref(false);
@@ -99,6 +77,7 @@ const src = ref<string>();
 const store = useCommonStore();
 const route = useRoute()
 const router = useRouter()
+const unreadCount = ref(0);
 
 export interface HeaderProps {
   name: string,
@@ -117,8 +96,7 @@ const props = withDefaults(defineProps<HeaderProps>(), {
 if($cookies?.isKey("token")){
   getAvatar($cookies.get("token")).then(x => {
     const blob = x.data;
-    const imageUrl = URL.createObjectURL(blob);
-    src.value = imageUrl;
+    src.value = URL.createObjectURL(blob);
   })
 }
 

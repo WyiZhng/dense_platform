@@ -205,11 +205,11 @@ const prevStep = () => {
 }
 
 const nextStep = async () => {
-  if (step.value === 2) {
+  if (step.value === 1) {
     isSubmitting.value = true
     try {
       await submitReport($cookies?.get('token'), form.value.doctor, form.value.images)
-      router.push('history')
+      await router.push('history')
     } catch (error) {
       ElMessage.error('提交失败，请重试')
     } finally {
