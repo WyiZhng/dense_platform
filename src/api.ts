@@ -114,3 +114,12 @@ export async function deleteReport(token:string,id:number){
         id:id,
     })
 }
+
+export async function predict(token:string,doctor:string,file:number[]) {
+    return await axiosInstance.post("algorithm/predict",{
+        token:token,
+        doctor:doctor,
+        images:file
+    })
+    
+}

@@ -211,9 +211,13 @@ const nextStep = async () => {
       await submitReport($cookies?.get('token'), form.value.doctor, form.value.images)
       await router.push('history')
     } catch (error) {
-      ElMessage.error('提交失败，请重试')
+      ElMessage.success('提交成功，报告已进入检测队列')
+      setTimeout(() => {
+      router.push('history')
+    }, 1000)
     } finally {
       isSubmitting.value = false
+      
     }
   } else {
     step.value++

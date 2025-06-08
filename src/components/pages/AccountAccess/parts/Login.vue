@@ -92,7 +92,7 @@ const rules = {
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, message: '密码长度不能小于6位', trigger: 'blur' }
+    
   ]
 }
 
