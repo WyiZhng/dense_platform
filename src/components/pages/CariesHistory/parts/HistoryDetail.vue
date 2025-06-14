@@ -14,7 +14,7 @@
       </div>
     </el-form-item>
 
-    <el-form-item v-if="form.current_status == Status.Completed" label="检测结果:" class="mb-6">
+    <el-form-item  label="检测结果:" class="mb-6">
       <div class="grid grid-cols-2 gap-4">
         <div v-for="resultImage in resultImages" class="relative group">
           <el-image 
@@ -57,8 +57,7 @@
       </div>
     </el-form-item>
 
-    <div v-if="commonStore.usertype == UserType.Patient">
-      <div v-if="form.current_status == Status.Completed">
+    
         <el-form-item label="检测结果参考:" class="mb-6">
           <div class="bg-gray-50 p-6 rounded-lg space-y-6">
             <div class="space-y-4">
@@ -134,11 +133,10 @@
             resize="none"
           ></el-input>
         </el-form-item>
-      </div>
-      <el-text v-else class="text-gray-600 italic">医生正在检测您的报告中，请耐心等待</el-text>
-    </div>
+     
+  
 
-    <div v-else>
+      <div v-if="commonStore.usertype == UserType.Doctor">
       <el-form class="space-y-4">
         <el-form-item label="诊断结果:">
           <el-input
@@ -152,13 +150,7 @@
         </el-form-item>
         
         <el-form-item class="flex justify-end space-x-4">
-          <el-button 
-            type="warning"
-            class="flex items-center"
-          >
-            <el-icon class="mr-1"><Search /></el-icon>
-            检测
-          </el-button>
+          
           <el-button 
             type="primary"
             @click="submitDiagnose()"
@@ -170,6 +162,7 @@
         </el-form-item>
       </el-form>
     </div>
+    <el-text v-else class="text-gray-600 italic">以上评价由龋齿筛查算法生成仅供初步参考，医生正在检测您的报告中，请耐心等待后续通知！！</el-text>
   </el-form>
 </template>
 
@@ -181,6 +174,8 @@ import {useCommonStore} from "@/store";
 import {axiosInstance, getImageData, getImagesOfReport} from "@/api";
 import type {VueCookies} from "vue-cookies";
 import {ImageType, UserType} from "@/common";
+import { ElMessage } from 'element-plus';
+import type { UserResponse } from '@/store';
 const comments = ref([{
   user:"abc",
   content:"hello world"
@@ -290,13 +285,34 @@ axiosInstance.post("/report/detail", {
   form.value = resp.data;
 })
 
+axiosInstance.post<UserResponse>("/user", {
+  token: $cookies?.get("token"),
+}).then((response) => {
+  // 确保访问正确的响应结构
+  const userData = response.data.user;
+  
+  // 更新用户类型状态
+  commonStore.usertype = userData.type;
+  
+  // 可选：更新其他用户信息
+  commonStore.username = userData.username;
+}).catch((error) => {
+  console.error("获取用户信息失败", error);
+  // 错误处理逻辑
+});
+
 function submitDiagnose(){
   axiosInstance.post("/report/diagnose/submit",{
       token:$cookies?.get("token"),
       id:form.value.id,
       diagnose:form.value.diagnose
   })
-  
+  ElMessage({
+        message: '评价提交成功',
+        type: 'success',
+        duration: 2000, // 显示3秒
+        position: 'top-right' // 提示位置
+      }as any);
 }
 
 </script>
