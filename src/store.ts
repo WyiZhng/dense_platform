@@ -34,3 +34,12 @@ export const useHistoryStore = defineStore("histoy",()=>{
     
     return {id, doctor, patient, sub_time,current_status};
 })
+
+export interface UserData {
+    username: string;
+    type: UserType;
+  }
+  
+  export interface UserResponse {
+    user: UserData;
+  }

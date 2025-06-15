@@ -132,9 +132,10 @@
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { UserFilled, Document,Document as Stethoscope } from '@element-plus/icons-vue'
-import { useCommonStore } from '@/store'
+import { useCommonStore} from '@/store'
 import { UserType } from '@/common'
-import {submitUserInfo, submitDoctorInfo, uploadAvatar, getUserInfo} from '@/api'
+import {submitUserInfo, submitDoctorInfo, uploadAvatar, getUserInfo,axiosInstance} from '@/api'
+import type { UserResponse } from '@/store';
 import Upload from './parts/Upload.vue'
 import BaseCard from '@/components/common/BaseCard.vue'
 import BaseForm from '@/components/common/BaseForm.vue'
@@ -149,7 +150,18 @@ const doctorForm = ref({
   position: ''
 })
 
+axiosInstance.post<UserResponse>("/user", {
+  token: $cookies?.get("token"),
+}).then((response) => {
+  // 确保访问正确的响应结构
+  const userData = response.data.user;
+  // 更新用户类型状态
+  store.usertype = userData.type;
 
+}).catch((error) => {
+  console.error("获取用户信息失败", error);
+  // 错误处理逻辑
+});
 
 // 头像上传成功处理
 const handleAvatarSuccess = async (response: any) => {
