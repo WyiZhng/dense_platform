@@ -8,7 +8,11 @@
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "build-only": "vite build",
-    "type-check": "vue-tsc --build --force"
+    "type-check": "vue-tsc --build --force",
+    "test": "vitest",
+    "test:performance": "vitest run src/tests/performance.test.ts",
+    "analyze": "vite build --mode analyze",
+    "build:analyze": "npm run build && npx vite-bundle-analyzer dist"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",
@@ -29,8 +33,10 @@
     "@types/crypto-js": "^4.2.2",
     "@types/node": "^20.14.5",
     "@vitejs/plugin-vue": "^5.0.5",
+    "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.5.1",
     "autoprefixer": "^10.4.20",
+    "jsdom": "^26.1.0",
     "npm-run-all2": "^6.2.0",
     "postcss": "^8.4.41",
     "tailwindcss": "^3.4.10",
@@ -39,6 +45,7 @@
     "unplugin-vue-components": "^0.27.4",
     "vite": "^5.3.1",
     "vite-plugin-vue-devtools": "^7.3.1",
+    "vitest": "^3.2.4",
     "vue-tsc": "^2.0.21"
   }
 }

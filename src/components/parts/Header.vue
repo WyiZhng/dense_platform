@@ -1,39 +1,52 @@
 <template>
   <div class="bg-white border-b shadow-sm">
     <div class="max-w-7xl mx-auto px-4">
-      <div class="flex items-center justify-between h-16">
+      <div class="flex items-center justify-between h-10">
         <!-- Logo和标题区域 -->
         <div class="flex items-center space-x-4">
           <div class="flex items-center hover:opacity-90 transition-opacity cursor-pointer">
-            <el-icon size="32" class="text-blue-500">
+            <el-icon :size="logoSize" class="text-blue-500">
               <logo />
             </el-icon>
-            <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+            <span :class="[
+              'ml-3 font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent',
+              'hidden sm:block',
+              titleClass
+            ]">
               龋齿检测平台
+            </span>
+            <!-- 移动端简化标题 -->
+            <span class="ml-2 sm:hidden text-lg font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+              龋齿检测
             </span>
           </div>
         </div>
 
         <!-- 右侧功能区 -->
-        <div class="flex items-center space-x-8">
-          <!-- 功能按钮组 -->
+        <div class="flex items-center space-x-4 sm:space-x-8">
+          <!-- 功能按钮组 - 桌面版 -->
+          <div class="hidden md:flex items-center space-x-4">
+            <!-- 可以在这里添加其他功能按钮 -->
+          </div>
 
-
-          <!-- 分割线 -->
-          <div class="h-8 w-px bg-gray-200"></div>
+          <!-- 分割线 - 桌面版 -->
+          <div class="hidden sm:block h-8 w-px bg-gray-200"></div>
 
           <!-- 用户信息区域 -->
           <div 
             @click="!login ? userLogin() : undefined" 
-            class="flex items-center space-x-3 cursor-pointer group"
+            class="flex items-center space-x-2 sm:space-x-3 cursor-pointer group"
           >
             <el-avatar 
-              :size="32" 
+              :size="avatarSize" 
               :src="src"
               class="border-2 border-gray-100 group-hover:border-blue-100 transition-colors"
             />
             <div class="flex items-center">
-              <span class="text-gray-700 font-medium">
+              <span :class="[
+                'text-gray-700 font-medium truncate max-w-24 sm:max-w-none',
+                nameClass
+              ]">
                 {{ login ? props.name : "未登录" }}
               </span>
               <el-dropdown trigger="click" v-if="login">
@@ -63,10 +76,10 @@
 
 <script setup lang="ts">
 import {CaretBottom, SwitchButton, User} from '@element-plus/icons-vue';
-import {inject, ref} from 'vue';
+import {inject, ref, computed, onMounted} from 'vue';
 import logo from '../icon/logo.vue';
 import type {VueCookies} from 'vue-cookies';
-import {getAvatar} from '@/api';
+import {getAvatar, logout as apiLogout} from '@/api';
 import {useCommonStore} from "@/store";
 import {UserType} from "@/common";
 import {useRoute, useRouter} from 'vue-router'
@@ -84,47 +97,71 @@ export interface HeaderProps {
   login?: boolean
 }
 
-
-
 const props = withDefaults(defineProps<HeaderProps>(), {
   name: "",
   login: false,
 });
 
+// Responsive sizing
+const logoSize = computed(() => {
+  return window.innerWidth < 640 ? 28 : 32
+})
 
+const avatarSize = computed(() => {
+  return window.innerWidth < 640 ? 28 : 32
+})
 
-if($cookies?.isKey("token")){
-  getAvatar($cookies.get("token")).then(x => {
-    const blob = x.data;
-    src.value = URL.createObjectURL(blob);
-  })
-}
+const titleClass = computed(() => {
+  return window.innerWidth < 768 ? 'text-lg' : 'text-xl'
+})
+
+const nameClass = computed(() => {
+  return window.innerWidth < 640 ? 'text-sm' : 'text-base'
+})
+
+// Load avatar when component mounts
+onMounted(() => {
+  const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
+  if (token) {
+    getAvatar().then(x => {
+      const blob = x.data;
+      src.value = URL.createObjectURL(blob);
+    }).catch(error => {
+      console.warn('Failed to load avatar:', error);
+    })
+  }
+})
 
 function userLogin() {
-  showDialog();
+  router.push('/login');
 }
 
 function showDialog() {
   showDialogVariable.value = true;
 }
 
-function logout(){
+async function logout(){
+  try {
+    // Call API logout to invalidate session on server
+    await apiLogout();
+  } catch (error) {
+    console.warn('Logout API call failed:', error);
+  }
+  
+  // Clear all stored tokens
+  localStorage.removeItem('auth_token');
+  sessionStorage.removeItem('auth_token');
+  
+  // Clear legacy cookie if exists
   if($cookies?.isKey("token")){
     $cookies.remove("token","/");
   }
-  store.username = "";
-  store.usertype = UserType.Patient;
-  store.menu = undefined
-  store.detail = {
-    name: "",
-    sex: "",
-    birth: "",
-    phone:"",
-    email:"",
-    password:"",
-    address:""
-  }
-  window.location.reload();
+  
+  // Clear store
+  store.clearUserInfo();
+  
+  // Redirect to login page
+  router.push('/login');
 }
 </script>
 

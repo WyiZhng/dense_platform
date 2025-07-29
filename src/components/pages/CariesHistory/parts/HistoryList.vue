@@ -146,7 +146,7 @@
 <script lang="ts" setup>
 import {Refresh, Search, Calendar, View, Edit, Delete} from "@element-plus/icons-vue";
 import {deleteReport, getReports} from "@/api";
-import {computed, inject, ref, watch} from "vue";
+import {computed, inject, ref, watch, onMounted} from "vue";
 import {type VueCookies} from "vue-cookies";
 import {useCommonStore, useHistoryStore} from "@/store";
 import {useRouter} from "vue-router";
@@ -197,9 +197,16 @@ const props = withDefaults(defineProps<Props>(),{
     filterVisible:()=>true,
 })
 
-refresh();
+// 在组件挂载时调用refresh
+onMounted(() => {
+  console.log('HistoryList组件已挂载，开始获取报告数据');
+  refresh();
+});
+
+// 路由守卫
 router.beforeEach((to, from) => {
-  if (to.path == '/history' && from.path == '/check') {
+  if (to.path == '/user/history' && from.path == '/user/check') {
+    console.log('从检测页面返回历史页面，刷新数据');
     refresh()
   }
 })
@@ -222,12 +229,17 @@ function handleOpen(index: number, row: Report) {
 }
 
 function handleDelete(index: number, row: Report) {
-  deleteReport($cookies?.get("token"), row.id).then((x) => {
-    if (x.data.code != 0) {
-      ElMessage.error(x.data.message)
+  deleteReport(row.id.toString()).then((x) => {
+    if (x.data.code === 0) {
+      ElMessage.success('报告删除成功');
+      reports.value = reports.value.filter((report) => report.id !== row.id);
+    } else {
+      ElMessage.error(x.data.message || '删除报告失败');
     }
-    reports.value = reports.value.filter((x) => x.id != row.id);
-  })
+  }).catch(error => {
+    console.error('删除报告请求失败:', error);
+    ElMessage.error('删除报告失败，请稍后重试');
+  });
 }
 
 const filteredReports = computed(() => {
@@ -245,11 +257,28 @@ function handleSearch() {
 }
 
 function refresh() {
-  if ($cookies?.isKey("token")) {
-    getReports($cookies.get("token")).then(x => {
-      reports.value = x.data.reports;
-
+  // 检查认证状态
+  const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+  console.log('检查认证状态，token存在:', !!token);
+  
+  if (token) {
+    console.log('开始调用getReports API...');
+    getReports().then(x => {
+      console.log('获取报告响应:', x.data);
+      if (x.data.code === 0) {
+        reports.value = x.data.reports || x.data.data || [];
+        console.log('成功获取报告数据，数量:', reports.value.length);
+      } else {
+        console.error('获取报告失败:', x.data.message);
+        ElMessage.error(x.data.message || '获取报告失败');
+      }
+    }).catch(error => {
+      console.error('获取报告请求失败:', error);
+      ElMessage.error('获取报告失败，请稍后重试');
     });
+  } else {
+    console.warn('用户未登录，无法获取报告数据');
+    ElMessage.warning('请先登录');
   }
 }
 
@@ -258,9 +287,7 @@ const formatDate = (date: string) => {
   return new Date(date).toLocaleString('zh-CN', {
     year: 'numeric',
     month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
+    day: '2-digit'
   })
 }
 

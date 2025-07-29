@@ -1,145 +1,152 @@
 <template>
-  <div class="check-container">
-    <!-- 左侧步骤说明区域 -->
-    <div class="w-1/4 bg-gradient-to-b from-blue-500 to-blue-600 text-white p-8 rounded-l-2xl">
-      <div class="sticky top-8">
-        <h2 class="text-2xl font-bold mb-8">龋齿检测</h2>
-        
-        <div class="space-y-8">
-          <div 
-            v-for="(s, index) in steps" 
-            :key="index"
-            class="step-item"
-            :class="{ 
-              'active': step === index,
-              'completed': step > index 
-            }"
-          >
-            <div class="step-number">
-              <span v-if="step > index">
-                <el-icon><Check /></el-icon>
-              </span>
-              <span v-else>{{ index + 1 }}</span>
-            </div>
-            <div class="space-y-1">
-              <div class="text-lg font-medium">{{ s.title }}</div>
-              <div class="text-sm opacity-80">{{ s.description }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
+  <div class="check-page">
+    <!-- 页面标题 -->
+    <div class="page-header mb-6">
+      <h1 class="text-2xl font-bold text-gray-800">龋齿智能检测</h1>
+      <p class="text-gray-600 mt-1">请按照以下步骤完成检测</p>
     </div>
 
-    <!-- 右侧内容区域 -->
-    <div class="flex-1 p-8">
+    <!-- 步骤指示器 -->
+    <el-card class="steps-card mb-6" shadow="never">
+      <el-steps :active="step" align-center>
+        <el-step 
+          v-for="(s, index) in steps" 
+          :key="index"
+          :title="s.title"
+          :description="s.description"
+          :icon="s.icon"
+        />
+      </el-steps>
+    </el-card>
+
+    <!-- 主要内容区域 -->
+    <el-card class="content-card" shadow="hover">
       <!-- 步骤1：选择医生 -->
-      <div v-if="step === 0" class="animate-fade-in">
-        <div class="max-w-2xl mx-auto">
-          <h3 class="text-xl font-medium mb-6">选择您的主治医生</h3>
-          <div class="grid grid-cols-2 gap-4">
-            <div
-              v-for="doctor in doctors"
+      <div v-if="step === 0" class="step-content">
+        <div class="step-header">
+          <h3 class="text-xl font-semibold text-gray-800 mb-2">选择您的主治医生</h3>
+          <p class="text-gray-600">请选择一位专业医生为您进行诊断</p>
+        </div>
+
+        <div class="doctor-selection">
+          <el-row :gutter="16">
+            <el-col 
+              v-for="doctor in doctors" 
               :key="doctor.id"
-              class="doctor-card"
-              :class="{ 'selected': form.doctor === doctor.id }"
-              @click="form.doctor = doctor.id"
+              :xs="24" :sm="12" :md="8" :lg="6"
             >
-              <div class="flex items-center space-x-4">
-                <el-avatar 
-                  :size="48" 
-                  class="bg-blue-100 text-blue-600"
-                >
-                  {{ doctor.name.charAt(0) }}
-                </el-avatar>
-                <div>
-                  <div class="text-lg font-medium">{{ doctor.name }}</div>
-                  <div class="text-gray-500">{{ doctor.workplace }}</div>
-                  <div class="text-sm text-gray-400">{{ doctor.position }}</div>
+              <el-card 
+                class="doctor-card"
+                :class="{ 'selected': form.doctor === doctor.id }"
+                shadow="hover"
+                @click="form.doctor = doctor.id"
+              >
+                <div class="doctor-info">
+                  <el-avatar 
+                    :size="64" 
+                    class="doctor-avatar"
+                  >
+                    <el-icon size="32">
+                      <User />
+                    </el-icon>
+                  </el-avatar>
+                  <div class="doctor-details">
+                    <h4 class="doctor-name">{{ doctor.name }}</h4>
+                    <p class="doctor-workplace">{{ doctor.workplace }}</p>
+                    <p class="doctor-position">{{ doctor.position }}</p>
+                  </div>
+                  <div v-if="form.doctor === doctor.id" class="selected-indicator">
+                    <el-icon class="text-blue-500">
+                      <Check />
+                    </el-icon>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </div>
+              </el-card>
+            </el-col>
+          </el-row>
         </div>
       </div>
 
       <!-- 步骤2：上传图片 -->
-      <div v-if="step === 1" class="animate-fade-in">
-        <div class="max-w-3xl mx-auto">
-          <h3 class="text-xl font-medium mb-6">上传口腔照片</h3>
-          <div class="upload-container">
-            <Uploads 
-              @onSuccess="handleUploadSuccess"
-              class="upload-area"
-            />
-            <div class="upload-tips">
-              <div class="tip-item">
-                <el-icon class="text-blue-500"><InfoFilled /></el-icon>
-                <span>请上传清晰的口腔照片</span>
-              </div>
-              <div class="tip-item">
-                <el-icon class="text-blue-500"><Picture /></el-icon>
-                <span>支持 jpg、png 格式</span>
-              </div>
-              <div class="tip-item">
-                <el-icon class="text-blue-500"><Upload /></el-icon>
-                <span>单张图片不超过 4MB</span>
-              </div>
-            </div>
-          </div>
+      <div v-if="step === 1" class="step-content">
+        <div class="step-header">
+          <h3 class="text-xl font-semibold text-gray-800 mb-2">上传口腔照片</h3>
+          <p class="text-gray-600">请上传清晰的口腔照片以便进行准确诊断</p>
+        </div>
+
+        <div class="upload-section">
+          <Uploads 
+            @onSuccess="handleUploadSuccess"
+            class="upload-component"
+          />
+          
+          <el-alert
+            title="上传提示"
+            type="info"
+            :closable="false"
+            class="mt-4"
+          >
+            <ul class="upload-tips">
+              <li><el-icon class="mr-2"><Camera /></el-icon>请确保照片清晰，光线充足</li>
+              <li><el-icon class="mr-2"><Picture /></el-icon>支持 JPG、PNG 格式</li>
+              <li><el-icon class="mr-2"><Upload /></el-icon>单张图片不超过 4MB</li>
+              <li><el-icon class="mr-2"><InfoFilled /></el-icon>建议上传多角度照片以提高诊断准确性</li>
+            </ul>
+          </el-alert>
         </div>
       </div>
 
       <!-- 步骤3：完成 -->
-      <div v-if="step === 2" class="animate-fade-in">
-        <div class="success-container">
-          <div class="success-icon">
-            <el-icon><Check /></el-icon>
-          </div>
-          <h3 class="text-2xl font-bold mt-6">提交成功</h3>
-          <p class="text-gray-500 mt-2">
-            请耐心等待，您的检测将在3-5个工作日内完成
-          </p>
-          <div class="mt-8 space-x-4">
-            <el-button 
-              type="primary" 
-              size="large"
-              @click="goToHistory"
-            >
-              查看检测记录
-            </el-button>
-            <el-button 
-              size="large"
-              @click="router.push('/user/home')"
-            >
-              返回首页
-            </el-button>
-          </div>
-        </div>
+      <div v-if="step === 2" class="step-content">
+        <el-result
+          icon="success"
+          title="提交成功"
+          sub-title="您的检测请求已成功提交，专业医生将在3-5个工作日内完成诊断"
+        >
+          <template #extra>
+            <div class="result-actions">
+              <el-button 
+                type="primary" 
+                size="large"
+                @click="goToHistory"
+              >
+                <el-icon class="mr-2"><Document /></el-icon>
+                查看检测记录
+              </el-button>
+              <el-button 
+                size="large"
+                @click="router.push('/user/home')"
+              >
+                <el-icon class="mr-2"><House /></el-icon>
+                返回首页
+              </el-button>
+            </div>
+          </template>
+        </el-result>
       </div>
+    </el-card>
 
-      <!-- 底部按钮 -->
-      <div 
-        v-if="step !== 2"
-        class="fixed bottom-0 left-1/4 right-0 bg-white border-t p-4 flex justify-end space-x-4"
+    <!-- 底部操作按钮 -->
+    <div v-if="step !== 2" class="action-buttons">
+      <el-button 
+        v-if="step > 0" 
+        size="large"
+        @click="prevStep"
       >
-        <el-button 
-          v-if="step > 0" 
-          @click="prevStep"
-          size="large"
-        >
-          上一步
-        </el-button>
-        
-        <el-button 
-          type="primary" 
-          size="large"
-          @click="nextStep"
-          :disabled="!canProceed"
-          :loading="isSubmitting"
-        >
-          {{ buttonNextText }}
-        </el-button>
-      </div>
+        <el-icon class="mr-2"><ArrowLeft /></el-icon>
+        上一步
+      </el-button>
+      
+      <el-button 
+        type="primary" 
+        size="large"
+        @click="nextStep"
+        :disabled="!canProceed"
+        :loading="isSubmitting"
+      >
+        {{ buttonNextText }}
+        <el-icon class="ml-2"><ArrowRight /></el-icon>
+      </el-button>
     </div>
   </div>
 </template>
@@ -147,7 +154,10 @@
 <script setup lang="ts">
 import { ref, computed, inject } from "vue"
 import { ElMessage } from 'element-plus'
-import { User, Upload, Check, ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
+import { 
+  User, Upload, Check, ArrowLeft, ArrowRight, Camera, Picture, 
+  InfoFilled, Document, House 
+} from '@element-plus/icons-vue'
 import { useRouter } from "vue-router"
 import { getDoctors, submitReport } from "@/api"
 import type { VueCookies } from "vue-cookies"
@@ -172,17 +182,39 @@ const doctors = ref<{
   sex: UserSex
   position: string
   workplace: string
-}[]>()
+}[]>([])
 
 // 获取医生列表
 const $cookies = inject<VueCookies>('$cookies')
-if($cookies?.isKey("token")){
-  getDoctors($cookies?.get('token')).then((x) => {
-    doctors.value = x.data.doctors
-  }).catch(() => {
-    ElMessage.error('获取医生列表失败')
+
+// 在组件挂载时获取医生列表
+import { onMounted } from 'vue'
+
+onMounted(() => {
+  console.log('组件挂载，开始获取医生列表...')
+  
+  // 检查是否有token，如果有就使用认证方式获取
+  const token = $cookies?.get('token')
+  if (token) {
+    console.log('使用认证方式获取医生列表')
+  } else {
+    console.log('尝试公开方式获取医生列表')
+  }
+  
+  getDoctors().then((x) => {
+    console.log('医生列表响应:', x.data)
+    if (x.data && x.data.doctors) {
+      doctors.value = x.data.doctors
+      console.log('医生列表设置成功，数量:', doctors.value.length)
+    } else {
+      console.error('医生列表响应格式错误:', x.data)
+      ElMessage.error('医生列表数据格式错误')
+    }
+  }).catch((error) => {
+    console.error('获取医生列表失败:', error)
+    ElMessage.error('获取医生列表失败，请稍后重试')
   })
-}
+})
 
 // 计算属性
 const buttonNextText = computed(() => {
@@ -208,7 +240,7 @@ const nextStep = async () => {
   if (step.value === 1) {
     isSubmitting.value = true
     try {
-      await submitReport($cookies?.get('token'), form.value.doctor, form.value.images)
+      await submitReport(form.value.doctor, form.value.images)
       await router.push('history')
     } catch (error) {
       ElMessage.success('提交成功，报告已进入检测队列')
@@ -245,84 +277,233 @@ const steps = [
 </script>
 
 <style scoped>
-.check-container {
-  @apply flex h-[calc(100vh-64px)] bg-gray-50;
+.check-page {
+  @apply min-h-screen p-6;
 }
 
-.step-item {
-  @apply flex items-start space-x-4 p-4 rounded-lg transition-colors;
+.page-header {
+  @apply text-center;
 }
 
-.step-item.active {
-  @apply bg-white bg-opacity-10;
+/* 步骤卡片样式 */
+.steps-card {
+  @apply border-none;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
 }
 
-.step-item.completed .step-number {
-  @apply bg-green-400;
+.steps-card :deep(.el-card__body) {
+  @apply py-8;
 }
 
-.step-number {
-  @apply w-8 h-8 rounded-full bg-white bg-opacity-20 flex items-center justify-center 
-         text-sm font-medium shrink-0;
+.steps-card :deep(.el-steps) {
+  @apply max-w-4xl mx-auto;
+}
+
+/* 内容卡片样式 */
+.content-card {
+  @apply border-none min-h-96;
+  border-radius: 16px;
+}
+
+.content-card :deep(.el-card__body) {
+  @apply p-8;
+}
+
+.step-content {
+  @apply min-h-80;
+}
+
+.step-header {
+  @apply text-center mb-8;
+}
+
+/* 医生选择样式 */
+.doctor-selection {
+  @apply mt-8;
 }
 
 .doctor-card {
-  @apply p-6 rounded-xl border-2 border-gray-200 cursor-pointer
-         transition-all duration-300 hover:border-blue-500 hover:shadow-md;
+  @apply cursor-pointer transition-all duration-300 mb-4;
+  border-radius: 12px;
+}
+
+.doctor-card:hover {
+  @apply shadow-lg transform -translate-y-1;
 }
 
 .doctor-card.selected {
-  @apply border-blue-500 bg-blue-50;
+  @apply border-2 border-blue-500;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-.upload-container {
-  @apply bg-white rounded-xl p-8 shadow-sm;
+.doctor-card :deep(.el-card__body) {
+  @apply p-4;
 }
 
-.upload-tips {
-  @apply mt-6 space-y-3;
+.doctor-info {
+  @apply text-center relative;
 }
 
-.tip-item {
-  @apply flex items-center space-x-2 text-gray-600;
+.doctor-avatar {
+  @apply mx-auto mb-3 bg-gradient-to-r from-blue-500 to-purple-600;
 }
 
-.success-container {
-  @apply text-center max-w-lg mx-auto mt-20;
+.doctor-details {
+  @apply space-y-1;
 }
 
-.success-icon {
-  @apply w-20 h-20 rounded-full bg-green-100 text-green-500 
-         flex items-center justify-center mx-auto text-4xl;
+.doctor-name {
+  @apply text-lg font-semibold text-gray-800;
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-out;
+.doctor-workplace {
+  @apply text-sm text-gray-600;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.doctor-position {
+  @apply text-xs text-gray-500;
+}
+
+.selected-indicator {
+  @apply absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center;
+}
+
+.selected-indicator .el-icon {
+  @apply text-white text-sm;
 }
 
 /* 上传区域样式 */
-.upload-area :deep(.el-upload--picture-card) {
+.upload-section {
+  @apply mt-8;
+}
+
+.upload-component :deep(.el-upload--picture-card) {
   @apply w-full h-48 border-2 border-dashed border-gray-300 
-         hover:border-blue-500 transition-colors rounded-xl
+         hover:border-blue-500 transition-all duration-300 rounded-xl
          flex flex-col items-center justify-center;
 }
 
-.upload-area :deep(.el-upload-list--picture-card) {
-  @apply grid grid-cols-3 gap-4 mt-4;
+.upload-component :deep(.el-upload--picture-card:hover) {
+  @apply bg-blue-50;
 }
 
-.upload-area :deep(.el-upload-list--picture-card .el-upload-list__item) {
-  @apply w-full h-48 rounded-xl overflow-hidden;
+.upload-component :deep(.el-upload-list--picture-card) {
+  @apply grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4;
+}
+
+.upload-component :deep(.el-upload-list--picture-card .el-upload-list__item) {
+  @apply w-full h-32 rounded-xl overflow-hidden;
+}
+
+.upload-tips {
+  @apply list-none space-y-2 text-sm;
+}
+
+.upload-tips li {
+  @apply flex items-center text-gray-600;
+}
+
+/* 结果页面样式 */
+.result-actions {
+  @apply flex flex-col sm:flex-row gap-4 justify-center;
+}
+
+/* 底部操作按钮 */
+.action-buttons {
+  @apply flex justify-between items-center mt-8 pt-6 border-t border-gray-100;
+}
+
+.action-buttons .el-button {
+  @apply px-8 py-3 rounded-xl font-medium;
+}
+
+/* Element Plus 组件样式覆盖 */
+:deep(.el-steps--horizontal) {
+  @apply flex justify-center;
+}
+
+:deep(.el-step__title) {
+  @apply font-semibold text-gray-700;
+}
+
+:deep(.el-step__description) {
+  @apply text-gray-500;
+}
+
+:deep(.el-step__icon.is-text) {
+  @apply bg-blue-500 text-white border-blue-500;
+}
+
+:deep(.el-step__icon.is-process) {
+  @apply bg-blue-500 border-blue-500;
+}
+
+:deep(.el-step__icon.is-finish) {
+  @apply bg-green-500 border-green-500;
+}
+
+:deep(.el-alert) {
+  @apply rounded-xl border-none;
+}
+
+:deep(.el-alert--info) {
+  @apply bg-blue-50 text-blue-800;
+}
+
+:deep(.el-result) {
+  @apply py-8;
+}
+
+:deep(.el-result__icon svg) {
+  @apply w-16 h-16;
+}
+
+:deep(.el-result__title) {
+  @apply text-2xl font-bold text-gray-800 mt-4;
+}
+
+:deep(.el-result__subtitle) {
+  @apply text-gray-600 mt-2;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .check-page {
+    @apply p-4;
+  }
+  
+  .content-card :deep(.el-card__body) {
+    @apply p-4;
+  }
+  
+  .doctor-selection :deep(.el-col) {
+    @apply mb-4;
+  }
+  
+  .action-buttons {
+    @apply flex-col space-y-4;
+  }
+  
+  .action-buttons .el-button {
+    @apply w-full;
+  }
+}
+
+@media (max-width: 640px) {
+  .steps-card :deep(.el-steps) {
+    @apply px-4;
+  }
+  
+  .upload-component :deep(.el-upload-list--picture-card) {
+    @apply grid-cols-2;
+  }
+  
+  .result-actions {
+    @apply flex-col;
+  }
+  
+  .result-actions .el-button {
+    @apply w-full;
+  }
 }
 </style>

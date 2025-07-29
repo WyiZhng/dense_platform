@@ -105,7 +105,7 @@ const validatePass = (rule: any, value: string, callback: any) => {
 const rules = {
   username: [
     { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 3, message: '用户名长度不能小于3位', trigger: 'blur' }
+    { min: 6, message: '用户名长度不能小于6位', trigger: 'blur' }
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
@@ -126,15 +126,34 @@ const handleSubmit = async () => {
     await formRef.value.validate()
     loading.value = true
     
-    const res = await register(form.value.username, Sha256(form.value.password).toString(), form.value.userType!)
+    // Use new API with enhanced registration
+    const res = await register(
+      form.value.username, 
+      form.value.password, // No need to hash, API handles it
+      form.value.userType!
+    )
+    
     if (res.data.code === 0) {
-      ElMessage.success('注册成功')
+      ElMessage.success('注册成功，请登录')
       isLoginView.value = true
     } else {
       ElMessage.error(res.data.message || '注册失败')
     }
-  } catch (error) {
-    console.error(error)
+  } catch (error: any) {
+    console.error('Registration error:', error)
+    
+    // Handle specific error types
+    if (error.code === 'VALIDATION_ERROR') {
+      ElMessage.error('输入信息验证失败，请检查输入内容')
+    } else if (error.code === 'RATE_LIMIT') {
+      ElMessage.error('注册尝试过于频繁，请稍后重试')
+    } else if (error.code === 'NETWORK_ERROR') {
+      ElMessage.error('网络连接失败，请检查网络设置')
+    } else if (error.message && error.message.includes('用户名已存在')) {
+      ElMessage.error('用户名已存在，请选择其他用户名')
+    } else {
+      ElMessage.error(error.message || '注册失败，请稍后重试')
+    }
   } finally {
     loading.value = false
   }
