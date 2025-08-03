@@ -37,5 +37,6 @@ export enum ImageType {
 }
 
 export const API_ADDRESS: string = "http://122.152.199.145:6501";
+// export const API_ADDRESS: string = "http://127.0.0.1:8889";
 
 export let useCookies = (): VueCookies => inject<VueCookies>("$cookies")!

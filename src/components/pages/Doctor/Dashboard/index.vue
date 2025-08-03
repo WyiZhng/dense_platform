@@ -445,6 +445,32 @@ onMounted(() => {
   overflow: hidden;
 }
 
+/* 首页按钮颜色调整 - 使用更浅的颜色 */
+:deep(.el-button--primary) {
+  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%) !important;
+  border: none !important;
+  opacity: 0.8;
+}
+
+:deep(.el-button--primary:hover) {
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%) !important;
+  transform: translateY(-1px);
+  opacity: 1;
+}
+
+/* 文本按钮样式调整 */
+:deep(.el-button--primary.is-text) {
+  background: transparent !important;
+  color: #60a5fa !important;
+  border: none !important;
+}
+
+:deep(.el-button--primary.is-text:hover) {
+  background: rgba(96, 165, 250, 0.1) !important;
+  color: #3b82f6 !important;
+  transform: none;
+}
+
 /* 响应式调整 */
 @media (max-width: 768px) {
   .doctor-dashboard {

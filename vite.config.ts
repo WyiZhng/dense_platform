@@ -24,14 +24,10 @@ export default defineConfig({
     // Only include dev tools in development
     process.env.NODE_ENV === 'development' && vueDevTools(),
     AutoImport({
-      resolvers: [ElementPlusResolver()],
-      // Cache auto-imports for better performance
-      cache: true,
+      resolvers: [ElementPlusResolver()]
     }),
     Components({
-      resolvers: [ElementPlusResolver()],
-      // Cache component resolution for better performance
-      cache: true,
+      resolvers: [ElementPlusResolver()]
     })
   ].filter(Boolean),
 
@@ -99,8 +95,6 @@ export default defineConfig({
 
   // CSS optimizations
   css: {
-    // Enable CSS code splitting
-    codeSplit: true,
     // PostCSS will use postcss.config.js automatically
     postcss: './postcss.config.js'
   }

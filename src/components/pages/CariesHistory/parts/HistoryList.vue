@@ -50,13 +50,23 @@
           fontWeight: '600'
         }"
       >
-        <el-table-column prop="id" label="报告号" min-width="120">
+        <!-- 报告号列：首页使用较小宽度，检测记录页面使用更大宽度 -->
+        <el-table-column 
+          prop="id" 
+          label="报告号" 
+          :min-width="props.isHomePage ? 100 : 120"
+        >
           <template #default="{ row }">
             <span class="font-medium text-gray-700">#{{ row.id }}</span>
           </template>
         </el-table-column>
 
-        <el-table-column prop="doctor" label="负责医生" min-width="150">
+        <!-- 负责医生列：检测记录页面使用更大宽度以显示完整信息 -->
+        <el-table-column 
+          prop="doctor" 
+          label="负责医生" 
+          :min-width="props.isHomePage ? 150 : 150"
+        >
           <template #default="{ row }">
             <div class="flex items-center space-x-2">
               <el-avatar :size="24" class="bg-blue-100 text-blue-600">
@@ -67,7 +77,14 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="submitTime" label="提交时间" min-width="180">
+        <!-- 提交时间列：检测记录页面使用更大宽度以完整显示时间 -->
+        <el-table-column 
+          prop="submitTime" 
+          :min-width="props.isHomePage ? 160 : 200"
+        >
+          <template #header>
+            <div style="padding-left: 10px;">提交时间</div>
+          </template>
           <template #default="{ row }">
             <div class="flex items-center space-x-2 text-gray-600">
               <el-icon><Calendar /></el-icon>
@@ -76,7 +93,13 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="状态" width="120">
+        <!-- 状态列：检测记录页面使用更大宽度 -->
+        <el-table-column 
+          :width="props.isHomePage ? 120 : 240"
+        >
+          <template #header>
+            <div>&nbsp&nbsp&nbsp&nbsp&nbsp状态</div>
+          </template>
           <template #default="{ row }">
             <el-tag
               :type="getStatusType(row.current_status)"
@@ -88,12 +111,18 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="操作" width="250" fixed="right">
+        <!-- 操作列：检测记录页面使用更大宽度以容纳更多操作按钮 -->
+        <el-table-column 
+          :width="props.isHomePage ? 240 : 300" 
+          fixed="right"
+        >
+          <template #header>
+            <div style="padding-left: 20px;">操作</div>
+          </template>
           <template #default="scope">
             <div class="flex items-center space-x-2">
               <el-button
                 type="primary"
-                text
                 @click="handleOpen(scope.$index, scope.row)"
               >
                 <el-icon><View /></el-icon>
@@ -181,8 +210,10 @@ const argsComputed = (status: Status) => {
     }
   })
 }
+// 定义组件Props类型
 type Props = {
-    filterVisible:boolean
+    filterVisible: boolean  // 是否显示筛选器
+    isHomePage?: boolean   // 是否在首页显示（用于控制列宽）
 }
 
 const reports = ref<Report[]>([]);
@@ -193,8 +224,10 @@ const store = useCommonStore();
 const router = useRouter();
 const $cookies = inject<VueCookies>("$cookies");
 const dataRange = ref<string[]>([]);
+// 设置Props默认值
 const props = withDefaults(defineProps<Props>(),{
-    filterVisible:()=>true,
+    filterVisible: () => true,
+    isHomePage: () => false
 })
 
 // 在组件挂载时调用refresh
@@ -350,5 +383,39 @@ const getStatusText = (status: Status) => {
 
 :deep(.el-pagination) {
   @apply !flex items-center justify-end;
+}
+
+/* 查看报告按钮颜色调整 - 使用更浅的颜色 */
+:deep(.el-button--primary) {
+  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%) !important;
+  border: none !important;
+  opacity: 0.8;
+}
+
+:deep(.el-button--primary:hover) {
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%) !important;
+  transform: translateY(-1px);
+  opacity: 1;
+}
+
+/* 文本按钮样式调整 */
+:deep(.el-button--primary.is-text) {
+  background: transparent !important;
+  color: #60a5fa !important;
+  border: none !important;
+}
+
+:deep(.el-button--primary.is-text:hover) {
+  background: rgba(96, 165, 250, 0.1) !important;
+  color: #3b82f6 !important;
+  transform: none;
+}
+
+:deep(.el-button--primary.is-text span) {
+  color: #60a5fa !important;
+}
+
+:deep(.el-button--primary.is-text:hover span) {
+  color: #3b82f6 !important;
 }
 </style>

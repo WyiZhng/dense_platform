@@ -499,8 +499,8 @@ describe('Component Integration Logic', () => {
     expect(errorBoundaryState.error).toBeNull()
   })
 })
-// 
-Mock components for testing
+
+// Mock components for testing
 const MockLoadingOverlay = {
   name: 'LoadingOverlay',
   template: '<div v-if="visible" class="loading-overlay">{{ text }}</div>',

@@ -20,20 +20,20 @@
 
     <div class="grid grid-cols-2 gap-4 mb-6">
       <el-form-item label="医生" class="mb-0">
-        <el-link type="primary" class="text-lg font-medium">
+        <el-link type="primary" class="text-lg font-medium doctor-patient-link">
           <el-icon class="mr-2">
             <User />
           </el-icon>
-          {{ form.doctor }}
+          <span class="link-text">{{ form.doctor }}</span>
         </el-link>
       </el-form-item>
 
       <el-form-item label="患者" class="mb-0">
-        <el-link type="primary" class="text-lg font-medium">
+        <el-link type="primary" class="text-lg font-medium doctor-patient-link">
           <el-icon class="mr-2">
             <User />
           </el-icon>
-          {{ form.user }}
+          <span class="link-text">{{ form.user }}</span>
         </el-link>
       </el-form-item>
     </div>
@@ -47,6 +47,9 @@
       </div>
     </el-form-item>
 
+    <el-form-item label="医生评价" class="mb-6">
+      <el-input v-model="form.diagnose" type="textarea" readonly class="w-full" :rows="7" resize="none"></el-input>
+    </el-form-item>
 
     <el-form-item label="检测结果参考:" class="mb-6">
       <div class="bg-gray-50 p-6 rounded-lg space-y-6">
@@ -60,13 +63,18 @@
             </div>
 
             <div class="p-3 bg-yellow-50 rounded-md">
-              <p class="font-medium text-yellow-700">类别 1-3（轻度龋齿）</p>
+              <p class="font-medium text-yellow-700">类别 1-2（轻度龋齿）</p>
               <p class="text-yellow-600">检测发现牙齿存在轻微龋齿，建议尽快采取早期治疗，以防止进一步发展。</p>
             </div>
 
+            <div class="p-3 bg-orange-50 rounded-md">
+              <p class="font-medium text-orange-700">类别 3-4（中度龋齿）</p>
+              <p class="text-orange-600">检测结果表明牙齿龋齿较为严重，可能伴随冷热敏感症状，建议及时采取治疗，防止进一步恶化。</p>
+            </div>
+
             <div class="p-3 bg-red-50 rounded-md">
-              <p class="font-medium text-red-700">类别 4-6（严重龋齿）</p>
-              <p class="text-red-600">检测结果表明牙齿龋齿较为严重，可能已经侵入牙本质甚至牙髓，需要及时专业处理。</p>
+              <p class="font-medium text-red-700">类别 5-6（严重龋齿）</p>
+              <p class="text-red-600">检测结果表明牙齿龋齿比较严重，可能已经侵入牙本质甚至牙髓，需要及时专业处理。</p>
             </div>
           </div>
         </div>
@@ -84,7 +92,7 @@
             </div>
 
             <div class="p-3 bg-yellow-50 rounded-md">
-              <p class="font-medium text-yellow-700">类别 1-3（轻度龋齿）</p>
+              <p class="font-medium text-yellow-700">类别 1-2（轻度龋齿）</p>
               <ul class="list-disc list-inside text-yellow-600 space-y-1">
                 <li>尽快补牙，防止龋齿进一步发展</li>
                 <li>加强日常清洁，使用含氟牙膏，饭后漱口</li>
@@ -92,8 +100,17 @@
               </ul>
             </div>
 
+            <div class="p-3 bg-orange-50 rounded-md">
+              <p class="font-medium text-orange-700">类别 3-4（中度龋齿）</p>
+              <ul class="list-disc list-inside text-orange-600 space-y-1">
+                <li>需及时进行龋洞充填治疗，避免病变侵入牙本质深层</li>
+                <li>日常使用抗敏感牙膏缓解冷热刺激不适，减少酸甜食物摄入</li>
+                <li>每日使用牙线清洁邻面，配合含氟漱口水辅助抑制细菌滋生</li>
+              </ul>
+            </div>
+
             <div class="p-3 bg-red-50 rounded-md">
-              <p class="font-medium text-red-700">类别 4-6（严重龋齿）</p>
+              <p class="font-medium text-red-700">类别 5-6（严重龋齿）</p>
               <ul class="list-disc list-inside text-red-600 space-y-1">
                 <li>建议进行根管治疗或牙冠修复，防止牙齿损坏进一步加剧</li>
                 <li>若牙齿无法保留，建议拔除并及时进行种植牙或义齿修复</li>
@@ -111,10 +128,6 @@
           </ul>
         </div>
       </div>
-    </el-form-item>
-
-    <el-form-item label="医生评价" class="mb-6">
-      <el-input v-model="form.diagnose" type="textarea" readonly class="w-full" :rows="4" resize="none"></el-input>
     </el-form-item>
 
 
@@ -145,6 +158,7 @@
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
 import { computed, inject, ref } from "vue";
+import { User, Check } from '@element-plus/icons-vue';
 import { useCommonStore } from "@/store";
 import { getImageData, getResultImageData, getImagesOfReport, getReportDetail, getUserSimpleInfo, updateReportStatus } from "@/api";
 import type { VueCookies } from "vue-cookies";

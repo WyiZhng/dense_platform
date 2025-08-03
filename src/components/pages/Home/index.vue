@@ -107,19 +107,44 @@
                 </el-icon>
                 <span class="text-lg font-medium">最近检测记录</span>
               </div>
-              <el-button type="primary" text @click="router.push('/user/history')">
+              <el-button type="primary" @click="router.push('/user/history')">
                 查看全部
                 <el-icon class="ml-1"><ArrowRight /></el-icon>
               </el-button>
             </div>
           </template>
-          <HistoryList :filter-visible="false" />
+          <!-- 首页的检测记录列表，设置isHomePage为true以使用较小的列宽 -->
+          <HistoryList :filter-visible="false" :is-home-page="true" />
         </el-card>
       </el-col>
 
       <!-- 功能特色 -->
       <el-col :xs="24" :lg="8">
         <div class="feature-section">
+          <!-- 快速操作 -->
+          <el-card class="quick-actions-card mb-4" shadow="hover">
+            <template #header>
+              <span class="text-lg font-medium">快速操作</span>
+            </template>
+            <div class="quick-actions">
+              <el-button 
+                type="primary" 
+                class="action-btn"
+                @click="router.push('/user/check')"
+              >
+                <el-icon><Camera /></el-icon>
+                <span>开始检测</span>
+              </el-button>
+              <el-button 
+                class="action-btn personal-center-btn"
+                @click="router.push('/user/personal')"
+              >
+                <el-icon><User /></el-icon>
+                <span>个人中心</span>
+              </el-button>
+            </div>
+          </el-card>
+
           <el-card 
             v-for="(feature, index) in features" 
             :key="index"
@@ -136,30 +161,6 @@
                 <h3 class="feature-title">{{ feature.title }}</h3>
                 <p class="feature-description">{{ feature.description }}</p>
               </div>
-            </div>
-          </el-card>
-
-          <!-- 快速操作 -->
-          <el-card class="quick-actions-card" shadow="hover">
-            <template #header>
-              <span class="text-lg font-medium">快速操作</span>
-            </template>
-            <div class="quick-actions">
-              <el-button 
-                type="primary" 
-                class="action-btn"
-                @click="router.push('/user/check')"
-              >
-                <el-icon><Camera /></el-icon>
-                <span>开始检测</span>
-              </el-button>
-              <el-button 
-                class="action-btn"
-                @click="router.push('/user/personal')"
-              >
-                <el-icon><User /></el-icon>
-                <span>个人中心</span>
-              </el-button>
             </div>
           </el-card>
         </div>
@@ -317,15 +318,27 @@ const features = [
 }
 
 .quick-actions {
-  @apply grid grid-cols-1 gap-3;
+  @apply flex flex-col items-center gap-3;
 }
 
 .action-btn {
-  @apply w-full h-12 flex items-center justify-center space-x-2 rounded-xl;
+  @apply w-full h-12 flex items-center justify-center rounded-xl;
+}
+
+.action-btn :deep(.el-button__content) {
+  @apply flex items-center justify-center w-full;
+}
+
+.action-btn .el-icon {
+  @apply mr-2 flex-shrink-0;
 }
 
 .action-btn span {
-  @apply font-medium;
+  @apply font-medium flex-shrink-0;
+}
+
+.personal-center-btn {
+  margin-left: -2px;
 }
 
 /* 响应式调整 */

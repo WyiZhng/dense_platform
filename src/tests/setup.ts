@@ -1,16 +1,25 @@
 import { vi } from 'vitest'
 
 // Mock global objects that might not be available in test environment
+// @ts-ignore - Mock for testing environment
 global.IntersectionObserver = vi.fn(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
-  disconnect: vi.fn()
-}))
+  disconnect: vi.fn(),
+  root: null,
+  rootMargin: '',
+  thresholds: [],
+  takeRecords: vi.fn(() => [])
+})) as any
 
+// @ts-ignore - Mock for testing environment
 global.PerformanceObserver = vi.fn(() => ({
   observe: vi.fn(),
   disconnect: vi.fn()
-}))
+})) as any
+
+// @ts-ignore - Add missing static property
+global.PerformanceObserver.supportedEntryTypes = []
 
 // Mock performance API
 global.performance = {

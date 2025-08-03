@@ -14,7 +14,6 @@
           :key="index"
           :title="s.title"
           :description="s.description"
-          :icon="s.icon"
         />
       </el-steps>
     </el-card>

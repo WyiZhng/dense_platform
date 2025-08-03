@@ -8,11 +8,11 @@
 
     <!-- 登录表单 -->
     <el-form ref="formRef" :model="form" :rules="rules" size="large" class="login-form-content">
-      <el-form-item prop="username">
+      <el-form-item prop="username" class="form-item-spacing">
         <el-input v-model="form.username" placeholder="请输入用户名" :prefix-icon="User" class="form-input" />
       </el-form-item>
 
-      <el-form-item prop="password">
+      <el-form-item prop="password" class="form-item-spacing">
         <el-input v-model="form.password" type="password" placeholder="请输入密码" :prefix-icon="Lock" class="form-input"
           show-password />
       </el-form-item>
@@ -54,7 +54,6 @@ import type { VueCookies } from 'vue-cookies'
 import { login } from '@/api'
 import { useRouter } from 'vue-router'
 import { useCommonStore } from '@/store'
-import Sha256 from "crypto-js/sha256"
 const router = useRouter()
 const store = useCommonStore()
 const $cookies = inject<VueCookies>('$cookies')
@@ -74,8 +73,7 @@ const rules = {
     { min: 3, message: '用户名长度不能小于3位', trigger: 'blur' }
   ],
   password: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
-
+    { required: true, message: '请输入密码', trigger: 'blur' }
   ]
 }
 
@@ -157,7 +155,16 @@ const handleSubmit = async () => {
 }
 
 .login-form-content {
-  @apply space-y-4;
+  @apply space-y-6;
+}
+
+/* 增加表单项的上下间距，确保placeholder文字完全显示 */
+.form-item-spacing {
+  @apply my-4; /* 修改为上下相等的间距 */
+}
+
+.form-item-spacing :deep(.el-form-item__content) {
+  @apply min-h-14;
 }
 
 .form-input :deep(.el-input__wrapper) {
@@ -215,6 +222,7 @@ const handleSubmit = async () => {
 
 :deep(.el-form-item__error) {
   @apply text-red-500 text-sm mt-1 font-medium;
+  transform: translateY(-6px); /* 将验证错误信息向上移动 */
 }
 
 /* 响应式调整 */

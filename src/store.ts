@@ -1,4 +1,4 @@
-﻿import {defineStore} from "pinia";
+import {defineStore} from "pinia";
 import {ref} from "vue";
 import {UserType} from "@/common";
 
@@ -6,7 +6,7 @@ export const useCommonStore = defineStore("common",()=>{
     const username = ref('');
     const usertype = ref<UserType>(UserType.Patient);
     const userId = ref('');
-    const userRoles = ref<string[]>([]);
+    const userRoles = ref<Array<{name: string, [key: string]: any}>>([]);
     const userPermissions = ref<any[]>([]);
     const detail = ref({
         name: "",
@@ -21,7 +21,7 @@ export const useCommonStore = defineStore("common",()=>{
     
     // 检查用户是否有特定角色
     const hasRole = (roleName: string) => {
-        return userRoles.value.includes(roleName);
+        return userRoles.value.some(role => role.name === roleName);
     };
     
     // 检查用户是否有特定权限

@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-    <el-container class="min-h-screen">
+    <el-container class="min-h-screen flex items-center">
       <!-- 左侧品牌展示区域 -->
       <el-aside width="50%" class="hidden lg:flex">
         <div class="w-full bg-white/80 backdrop-blur-sm flex flex-col justify-center items-center p-12 relative overflow-hidden">
@@ -169,4 +169,4 @@ onMounted(() => {
 .fade-leave-to {
   opacity: 0;
 }
-</style>    
+</style>

@@ -4,7 +4,7 @@
       <div class="flex items-center justify-between h-10">
         <!-- Logo和标题区域 -->
         <div class="flex items-center space-x-4">
-          <div class="flex items-center hover:opacity-90 transition-opacity cursor-pointer">
+          <div class="flex items-center hover:opacity-90 transition-opacity cursor-pointer" @click="goToHome">
             <el-icon :size="logoSize" class="text-blue-500">
               <logo />
             </el-icon>
@@ -134,6 +134,10 @@ onMounted(() => {
 
 function userLogin() {
   router.push('/login');
+}
+
+function goToHome() {
+  router.push('/');
 }
 
 function showDialog() {
